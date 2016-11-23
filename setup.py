@@ -62,7 +62,7 @@ setup(
     author_email='voidfiles@gmail.com',
     url='http://github.com/voidfiles/strainer',
     packages=packages,
-    package_data={'': ['LICENSE'], 'strainer': []},
+    package_data={'': ['LICENSE', 'HISTORY.rst'], 'strainer': []},
     package_dir={'strainer': 'strainer'},
     include_package_data=True,
     install_requires=requires,

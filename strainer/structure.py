@@ -5,16 +5,13 @@ Structure
 When building a serializer, you will need certain structures
 
 """
+import operator
+
 from collections import namedtuple
 
 from .exceptions import ValidationException
 
 Serializer = namedtuple('Serializer', 'to_representation to_internal')
-
-
-def _get_val(source, source_field=None):
-    val = getattr(source, source_field, None)
-    return val
 
 
 def field(source_field, target_field=None, validators=None, multiple=False):
@@ -43,8 +40,10 @@ def field(source_field, target_field=None, validators=None, multiple=False):
                 target_field: errors
             })
 
+    _attr_getter = operator.attrgetter(source_field)
+
     def to_representation(ctx, source, target):
-        target[target_field] = _get_val(source, source_field=source_field)
+        target[target_field] = _attr_getter(source)
 
         return target
 
@@ -76,8 +75,10 @@ def field(source_field, target_field=None, validators=None, multiple=False):
 def child(source_field, target_field=None, serializer=None):
     target_field = target_field if target_field else source_field
 
+    _attr_getter = operator.attrgetter(source_field)
+
     def to_representation(ctx, source, target):
-        sub_source = _get_val(source, source_field=source_field)
+        sub_source = _attr_getter(source)
         target[target_field] = serializer.to_representation(ctx, sub_source)
 
         return target
@@ -99,8 +100,10 @@ def child(source_field, target_field=None, serializer=None):
 def many(source_field, target_field=None, serializer=None):
     target_field = target_field if target_field else source_field
 
+    _attr_getter = operator.attrgetter(source_field)
+
     def to_representation(ctx, source, target):
-        sub_source = _get_val(source, source_field=source_field)
+        sub_source = _attr_getter(source)
         collector = []
         for i in sub_source:
             collector.append(serializer.to_representation(ctx, i))
