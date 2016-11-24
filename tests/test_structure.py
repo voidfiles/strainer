@@ -17,28 +17,37 @@ def test_field():
     serializer = field('a')
     test_obj = TestObject()
     target = {}
-    serializer.to_representation({}, test_obj, target)
+    serializer.to_representation(test_obj, target)
 
     assert {'a': 1} == target
 
     from_json = {'a': 1}
     target = {}
-    serializer.to_internal({}, from_json, target)
+    serializer.to_internal(from_json, target)
 
     assert {'a': 1} == target
+
+
+def test_field_custom_to_representation():
+    serializer = field('a', to_representation=lambda x: x.a + 1)
+    test_obj = TestObject()
+    target = {}
+    serializer.to_representation(test_obj, target)
+
+    assert {'a': 2} == target
 
 
 def test_field_multiple():
     serializer = field('d', multiple=True)
     test_obj = TestObject()
     target = {}
-    serializer.to_representation({}, test_obj, target)
+    serializer.to_representation(test_obj, target)
 
     assert {'d': [1, 2]} == target
 
     from_json = {'d': [1, 2]}
     target = {}
-    serializer.to_internal({}, from_json, target)
+    serializer.to_internal(from_json, target)
 
     assert {'d': [1, 2]} == target
 
@@ -49,12 +58,12 @@ def test_serializer():
     )
 
     test_obj = TestObject()
-    target = serializer.to_representation({}, test_obj)
+    target = serializer.to_representation(test_obj)
 
     assert {'a': 1} == target
 
     from_json = {'a': 1}
-    target == serializer.to_internal({}, from_json)
+    target == serializer.to_internal(from_json)
 
     assert {'a': 1} == target
 
@@ -70,7 +79,7 @@ def test_child():
     )
 
     test_obj = TestObject()
-    target = serializer.to_representation({}, test_obj)
+    target = serializer.to_representation(test_obj)
 
     assert {
       'a': 1,
@@ -86,7 +95,7 @@ def test_child():
       }
     }
 
-    target = serializer.to_internal({}, from_json)
+    target = serializer.to_internal(from_json)
 
     assert from_json == target
 
@@ -102,7 +111,7 @@ def test_many():
     )
 
     test_obj = TestObject()
-    target = serializer.to_representation({}, test_obj)
+    target = serializer.to_representation(test_obj)
 
     reference = {
       'a': 1,
@@ -114,5 +123,5 @@ def test_many():
     }
 
     assert reference == target
-    target = serializer.to_internal({}, reference)
+    target = serializer.to_internal(reference)
     assert target == reference

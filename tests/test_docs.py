@@ -32,7 +32,7 @@ def test_docs():
         release_date=date(1971, 12, 17)
     )
 
-    simple_data = album_schema.to_representation({}, album)
+    simple_data = album_schema.to_representation(album)
 
     pprint.pprint(simple_data)
 

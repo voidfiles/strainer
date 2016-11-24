@@ -14,7 +14,8 @@ from .exceptions import ValidationException
 Serializer = namedtuple('Serializer', 'to_representation to_internal')
 
 
-def field(source_field, target_field=None, validators=None, multiple=False):
+def field(source_field, target_field=None, validators=None,
+          multiple=False, to_representation=None):
     """field
 
     Constructs an indvidual field for a serializer, this is on the
@@ -26,12 +27,13 @@ def field(source_field, target_field=None, validators=None, multiple=False):
     """
     target_field = target_field if target_field else source_field
     validators = validators if validators else []
+    _to_representation = to_representation or operator.attrgetter(source_field)
 
-    def _validate(ctx, value, field):
+    def _validate(value, field, context=None):
         errors = []
         for validator in validators:
             try:
-                validator(ctx, value)
+                value = validator(value, context=context)
             except ValidationException, e:
                 errors += [e.errors]
 
@@ -40,14 +42,12 @@ def field(source_field, target_field=None, validators=None, multiple=False):
                 target_field: errors
             })
 
-    _attr_getter = operator.attrgetter(source_field)
-
-    def to_representation(ctx, source, target):
-        target[target_field] = _attr_getter(source)
+    def to_representation(source, target, context=None):
+        target[target_field] = _to_representation(source)
 
         return target
 
-    def to_internal(ctx, source, target):
+    def to_internal(source, target, context=None):
         value = source.get(target_field)
 
         if multiple:
@@ -55,7 +55,7 @@ def field(source_field, target_field=None, validators=None, multiple=False):
 
             for i, v in enumerate(value):
                 try:
-                    _validate(ctx, value, i)
+                    _validate(value, i, context=context)
                 except ValidationException, e:
                     errors.update(e.errors)
 
@@ -63,7 +63,7 @@ def field(source_field, target_field=None, validators=None, multiple=False):
                 raise ValidationException(errors)
 
         else:
-            _validate(ctx, value, target_field)
+            _validate(value, target_field, context=context)
 
         target[source_field] = value
 
@@ -77,16 +77,16 @@ def child(source_field, target_field=None, serializer=None):
 
     _attr_getter = operator.attrgetter(source_field)
 
-    def to_representation(ctx, source, target):
+    def to_representation(source, target, context=None):
         sub_source = _attr_getter(source)
-        target[target_field] = serializer.to_representation(ctx, sub_source)
+        target[target_field] = serializer.to_representation(sub_source, context=context)
 
         return target
 
-    def to_internal(ctx, source, target):
+    def to_internal(source, target, context=None):
         sub_source = source.get(target_field)
         try:
-            target[source_field] = serializer.to_internal(ctx, sub_source)
+            target[source_field] = serializer.to_internal(sub_source, context=context)
         except ValidationException, e:
             raise ValidationException({
                 target_field: e.errors
@@ -102,24 +102,24 @@ def many(source_field, target_field=None, serializer=None):
 
     _attr_getter = operator.attrgetter(source_field)
 
-    def to_representation(ctx, source, target):
+    def to_representation(source, target, context=None):
         sub_source = _attr_getter(source)
         collector = []
         for i in sub_source:
-            collector.append(serializer.to_representation(ctx, i))
+            collector.append(serializer.to_representation(i, context=context))
 
         target[target_field] = collector
 
         return target
 
-    def to_internal(ctx, source, target):
+    def to_internal(source, target, context=None):
         sub_source = source.get(target_field)
         collector = []
         errors = []
 
         for i in sub_source:
             try:
-                collector.append(serializer.to_internal(ctx, i))
+                collector.append(serializer.to_internal(i, context=context))
             except ValidationException, e:
                 errors += [e.errors]
 
@@ -136,21 +136,21 @@ def many(source_field, target_field=None, serializer=None):
 
 
 def create_serializer(*fields):
-    def to_representation(ctx, source):
+    def to_representation(source, context=None):
         target = {}
 
         for field in fields:
-            field.to_representation(ctx, source, target)
+            field.to_representation(source, target, context=context)
 
         return target
 
-    def to_internal(ctx, source):
+    def to_internal(source, context=None):
         target = {}
         errors = {}
 
         for field in fields:
             try:
-                field.to_internal(ctx, source, target)
+                field.to_internal(source, target, context=context)
             except ValidationException, e:
                 errors.update(e.errors)
 

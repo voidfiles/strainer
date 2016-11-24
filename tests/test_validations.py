@@ -2,6 +2,7 @@ import pytest
 
 from strainer.structure import field, create_serializer, child, many
 from strainer.exceptions import ValidationException
+from strainer import validators
 
 
 class ChildTestObject(object):
@@ -17,15 +18,15 @@ class TestObject(object):
     e = [ChildTestObject(), ChildTestObject()]
 
 
-def valid_validator(ctx, value):
+def valid_validator(value, context=None):
     return
 
 
-def nil_validator(ctx, value):
+def nil_validator(value, context=None):
     raise ValidationException('Failed')
 
 
-def nil_validator_2(ctx, value):
+def nil_validator_2(value, context=None):
     raise ValidationException('Failed, again')
 
 a_field = field('a', validators=[valid_validator, nil_validator, nil_validator_2])
@@ -62,10 +63,10 @@ def test_field_validation():
     target = {}
 
     with pytest.raises(ValidationException):
-        a_field.to_internal({}, from_json, target)
+        a_field.to_internal(from_json, target)
 
     try:
-        a_field.to_internal({}, from_json, target)
+        a_field.to_internal(from_json, target)
     except Exception, e:
         assert hasattr(e, 'errors')
         assert e.errors == {'a': ['Failed', 'Failed, again']}
@@ -77,12 +78,12 @@ def test_serializer_validation():
     target = None
 
     with pytest.raises(ValidationException):
-        target = a_serializer.to_internal({}, from_json)
+        target = a_serializer.to_internal(from_json)
 
     assert target is None
 
     try:
-        a_serializer.to_internal({}, from_json)
+        a_serializer.to_internal(from_json)
     except Exception, e:
         assert hasattr(e, 'errors')
         assert e.errors == {
@@ -103,12 +104,12 @@ def test_serializer_with_child_validation():
     target = None
 
     with pytest.raises(ValidationException):
-        target = a_serializer_with_child.to_internal({}, from_json)
+        target = a_serializer_with_child.to_internal(from_json)
 
     assert target is None
 
     try:
-        a_serializer_with_child.to_internal({}, from_json)
+        a_serializer_with_child.to_internal(from_json)
     except Exception, e:
         assert hasattr(e, 'errors')
         assert e.errors == {
@@ -134,12 +135,12 @@ def test_serializer_with_many_validation():
     target = None
 
     with pytest.raises(ValidationException):
-        target = a_e_serializer.to_internal({}, from_json)
+        target = a_e_serializer.to_internal(from_json)
 
     assert target is None
 
     try:
-        a_e_serializer.to_internal({}, from_json)
+        a_e_serializer.to_internal(from_json)
     except Exception, e:
         assert hasattr(e, 'errors')
         assert e.errors == {
@@ -149,4 +150,29 @@ def test_serializer_with_many_validation():
             }, {
                 'd2': ['Failed']
             }]
+        }
+
+
+def test_validation_strings():
+    a_field = field('a', validators=[validators.required(), validators.string()])
+    f_field = field('f', validators=[validators.required()])
+    g_field = field('g')
+
+    a_serializer = create_serializer(
+        a_field,
+        f_field,
+        g_field,
+    )
+
+    from_json = {
+      'a': 1,
+      'f': [],
+    }
+
+    try:
+        a_serializer.to_internal(from_json)
+    except Exception, e:
+        assert hasattr(e, 'errors')
+        assert e.errors == {
+            'f': ['This field is required'],
         }

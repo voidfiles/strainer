@@ -24,6 +24,6 @@ def test_back_and_fourth():
 
     json_data = {'a': 2, 'b': {'c': 'b'}, 'd': [{'c': 'b'}, {'c': 'b'}]}
 
-    serialized_data = serializer3.to_representation({}, obj)
+    serialized_data = serializer3.to_representation(obj)
     assert serialized_data == json_data
-    assert serialized_data == serializer3.to_internal({}, json_data)
+    assert serialized_data == serializer3.to_internal(json_data)
