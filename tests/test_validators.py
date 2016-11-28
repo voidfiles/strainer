@@ -25,6 +25,12 @@ def test_string():
     assert validator(1) == '1'
     assert validator(None) == 'None'
 
+    validator = validators.string(max_length=5)
+
+    assert 'a' * 5 == validator('a' * 5)
+    with pytest.raises(ValidationException):
+        validator('a' * 6)
+
 
 def test_required():
     validator = validators.required()

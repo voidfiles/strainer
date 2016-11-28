@@ -1,3 +1,5 @@
+import iso8601
+
 from functools import partial, wraps
 from .exceptions import ValidationException
 
@@ -30,11 +32,16 @@ def integer(value, bounds=None, context=None):
 
 
 @export_validator
-def string(value, context=None):
+def string(value, max_length=None, context=None):
     try:
-        return unicode(value)
+        value = unicode(value)
     except (TypeError, ValueError):
         raise ValidationException('This field is a string')
+
+    if max_length and len(value) > max_length:
+        raise ValidationException('This field is to long, max length is %s' % (max_length))
+
+    return value
 
 
 @export_validator
@@ -54,3 +61,12 @@ def boolean(value, context=None):
         return bool(value)
     except (TypeError, ValueError):
         raise ValidationException('This field is suppose to be boolean')
+
+
+@export_validator
+def datetime(value, default_tzinfo=iso8601.UTC, context=None):
+
+    try:
+        return iso8601.parse_date(value, default_timezone=default_tzinfo)
+    except iso8601.ParseError as e:
+        raise ValidationException('Invalid date: %s' % (e))
