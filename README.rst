@@ -9,15 +9,19 @@ It utilizes a functional style over inheritance.
 
 An example of Strainer, the example has been borrowed from `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_
 
+
+Serialization Example
+---------------------
+
 .. code-block:: python
 
     artist_serializer = create_serializer(
-      field('name')
+      field('name', validations=[validators.required()])
     )
 
     album_schema = create_serializer(
-      field('title'),
-      field('release_date'),
+      field('title', validations=[validators.required()]),
+      field('release_date', validations=[validators.required()]),
       child('artist', serializer=artist_serializer)
     )
 
@@ -45,6 +49,19 @@ An example of Strainer, the example has been borrowed from `Marshmallow <https:/
     # {'artist': {'name': 'David Bowie'},
     #  'release_date': datetime.date(1971, 12, 17),
     #  'title': 'Hunky Dory'}
+
+Validation
+----------
+
+Give input is a simple python dict freshly decoded from raw JSON.
+
+.. code-block:: python
+
+  try:
+      validated_input = question_serializer.to_internal(input)
+  except ValidationException as e:
+      print e.errors
+
 
 
 Installation
