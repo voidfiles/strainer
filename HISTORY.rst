@@ -3,7 +3,7 @@
 Release History
 ---------------
 
-Unreleased
+0.0.5 (2016-11-29)
 ++++++++++++++++++
 
 * Fleshed out docs
