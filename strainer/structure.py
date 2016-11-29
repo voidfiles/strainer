@@ -2,7 +2,7 @@
 Structure
 =========
 
-When building a serializer, you will need certain structures
+When building a serializer, you will need certain structures.
 
 """
 import operator
@@ -16,9 +16,7 @@ Serializer = namedtuple('Serializer', 'to_representation to_internal')
 
 def field(source_field, target_field=None, validators=None,
           multiple=False, to_representation=None):
-    """field
-
-    Constructs an indvidual field for a serializer, this is on the
+    """Constructs an indvidual field for a serializer, this is on the
     order of one key, and one value.
 
     The field determines the mapping between keys internaly, and externally.
@@ -73,6 +71,10 @@ def field(source_field, target_field=None, validators=None,
 
 
 def child(source_field, target_field=None, serializer=None):
+    """A child is a nested serializer.
+
+    """
+
     target_field = target_field if target_field else source_field
 
     _attr_getter = operator.attrgetter(source_field)
@@ -98,15 +100,16 @@ def child(source_field, target_field=None, serializer=None):
 
 
 def many(source_field, target_field=None, serializer=None):
+    """Many allows you to nest a list of serializers"""
+
     target_field = target_field if target_field else source_field
 
     _attr_getter = operator.attrgetter(source_field)
 
     def to_representation(source, target, context=None):
         sub_source = _attr_getter(source)
-        collector = []
-        for i in sub_source:
-            collector.append(serializer.to_representation(i, context=context))
+
+        collector = [serializer.to_representation(i, context=context) for i in sub_source]
 
         target[target_field] = collector
 
@@ -136,11 +139,11 @@ def many(source_field, target_field=None, serializer=None):
 
 
 def create_serializer(*fields):
+    """This function creates a serializer from a list fo fields"""
     def to_representation(source, context=None):
         target = {}
 
-        for field in fields:
-            field.to_representation(source, target, context=context)
+        [field.to_representation(source, target, context=context) for field in fields]
 
         return target
 

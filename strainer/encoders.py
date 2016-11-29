@@ -1,3 +1,9 @@
+"""
+Encoders
+========
+
+This is just a set of utilities to help take a deserialized dict and turn it into JSON. It handles things like datetime objects.
+"""
 import datetime
 import json
 
@@ -17,5 +23,7 @@ class JSONEncoder(json.JSONEncoder):
 
 
 def to_json(*args, **kwargs):
+    """accepts data and converts it into a JSON object.
+    """
     kwargs.setdefault('cls', JSONEncoder)
     return json.dumps(*args, **kwargs)

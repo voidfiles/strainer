@@ -37,7 +37,11 @@ packages = [
     'strainer',
 ]
 
-requires = []
+requires = [
+  'iso8601>=0.1.11',
+  'six>=1.10.0',
+]
+
 test_requirements = ['pytest>=2.8.0', 'pytest-cov']
 
 with open('strainer/__init__.py', 'r') as fd:

@@ -47,5 +47,6 @@ An example of Strainer, the example has been borrowed from `Marshmallow <https:/
    :maxdepth: 2
 
    introduction
+   api
 
 
