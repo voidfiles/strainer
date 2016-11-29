@@ -10,6 +10,7 @@ It utilizes a functional style over inheritance.
 An example of Strainer, the example has been borrowed from `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_
 
 
+
 Serialization Example
 ---------------------
 
