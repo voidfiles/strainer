@@ -32,7 +32,7 @@ def field(source_field, target_field=None, validators=None,
         for validator in validators:
             try:
                 value = validator(value, context=context)
-            except ValidationException, e:
+            except ValidationException as e:
                 errors += [e.errors]
 
         if errors:
@@ -54,7 +54,7 @@ def field(source_field, target_field=None, validators=None,
             for i, v in enumerate(value):
                 try:
                     _validate(value, i, context=context)
-                except ValidationException, e:
+                except ValidationException as e:
                     errors.update(e.errors)
 
             if errors:
@@ -89,7 +89,7 @@ def child(source_field, target_field=None, serializer=None):
         sub_source = source.get(target_field)
         try:
             target[source_field] = serializer.to_internal(sub_source, context=context)
-        except ValidationException, e:
+        except ValidationException as e:
             raise ValidationException({
                 target_field: e.errors
             })
@@ -123,7 +123,7 @@ def many(source_field, target_field=None, serializer=None):
         for i in sub_source:
             try:
                 collector.append(serializer.to_internal(i, context=context))
-            except ValidationException, e:
+            except ValidationException as e:
                 errors += [e.errors]
 
         target[source_field] = collector
@@ -154,7 +154,7 @@ def create_serializer(*fields):
         for field in fields:
             try:
                 field.to_internal(source, target, context=context)
-            except ValidationException, e:
+            except ValidationException as e:
                 errors.update(e.errors)
 
         if errors:

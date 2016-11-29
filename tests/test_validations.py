@@ -67,7 +67,7 @@ def test_field_validation():
 
     try:
         a_field.to_internal(from_json, target)
-    except Exception, e:
+    except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {'a': ['Failed', 'Failed, again']}
 
@@ -84,7 +84,7 @@ def test_serializer_validation():
 
     try:
         a_serializer.to_internal(from_json)
-    except Exception, e:
+    except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {
             'a': ['Failed', 'Failed, again'],
@@ -110,7 +110,7 @@ def test_serializer_with_child_validation():
 
     try:
         a_serializer_with_child.to_internal(from_json)
-    except Exception, e:
+    except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {
             'a': ['Failed', 'Failed, again'],
@@ -141,7 +141,7 @@ def test_serializer_with_many_validation():
 
     try:
         a_e_serializer.to_internal(from_json)
-    except Exception, e:
+    except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {
             'a': ['Failed', 'Failed, again'],
@@ -171,7 +171,7 @@ def test_validation_strings():
 
     try:
         a_serializer.to_internal(from_json)
-    except Exception, e:
+    except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {
             'f': ['This field is required'],
