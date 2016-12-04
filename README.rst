@@ -48,7 +48,7 @@ Serialization Example
         release_date=date(1971, 12, 17)
     )
 
-    simple_data = album_schema.to_representation({}, album)
+    simple_data = album_schema.deserialize({}, album)
 
     pprint.pprint(simple_data)
 
@@ -69,7 +69,7 @@ Give input is a simple python dict freshly decoded from raw JSON.
   }
 
   try:
-      validated_input = question_serializer.to_internal(input)
+      validated_input = question_serializer.serialize(input)
   except ValidationException as e:
       print e.errors
 

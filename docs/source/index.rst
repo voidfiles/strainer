@@ -39,7 +39,7 @@ An example of Strainer, the example has been borrowed from `Marshmallow <https:/
         release_date=date(1971, 12, 17)
     )
 
-    simple_data = album_schema.to_representation({}, album)
+    simple_data = album_schema.deserialize({}, album)
 
     pprint.pprint(simple_data)
 

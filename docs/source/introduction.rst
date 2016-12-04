@@ -44,7 +44,7 @@ This is pretty straighforward. We are creating a serializer, that takes two prop
 .. code-block:: python
 
   >>> question = Question('What is the meaning of life?', pub_date=datetime.utcnow())
-  >>> question_serializer.to_representation(question)
+  >>> question_serializer.deserialize(question)
   {
     'question_text': 'What is the meaning of life?',
     'pub_date': '2016-11-25T20:13:05.946126',
@@ -81,7 +81,7 @@ Now, we can take a question object, that has a set of choices, and return them a
   >>> choices = [Choice(choice_test='Chocolate', votes=0)]
   >>> choices.append(Choice(choice_test='42', votes=0))
   >>> question = Question('What is the meaning of life?', pub_date=timezone.now(), choices=choices)
-  >>> question_serializer.to_representation(question)
+  >>> question_serializer.deserialize(question)
   {
     'question_text': 'What is the meaning of life?',
     'pub_date': '2016-11-25T20:13:05.946126',
@@ -127,7 +127,7 @@ If we have some JSON input, we can validate that it conforms to our expectations
     "pub_date": "2016-11-25T20:13:05Z",
   }
 
-  validated_input = question_serializer.to_internal(input)
+  validated_input = question_serializer.serialize(input)
   print validated_input
 
   # {
@@ -152,7 +152,7 @@ Data will not always be valid, and when it isn't valid we should be able to repo
   }
 
   try:
-      validated_input = question_serializer.to_internal(input)
+      validated_input = question_serializer.serialize(input)
   except ValidationException as e:
       print e.errors
 

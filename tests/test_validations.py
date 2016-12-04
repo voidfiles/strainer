@@ -1,6 +1,6 @@
 import pytest
 
-from strainer import (field, create_serializer, child, many, ValidationException, validators)
+from strainer import (field, serializer, child, many, ValidationException, validators)
 
 
 class ChildTestObject(object):
@@ -33,23 +33,23 @@ c_field = field('c', validators=[valid_validator])
 d1_field = field('d1', validators=[valid_validator])
 d2_field = field('d2', validators=[valid_validator, nil_validator])
 
-a_serializer = create_serializer(
+a_serializer = serializer(
     a_field,
     b_field,
     c_field,
 )
 
-d_serializer = create_serializer(
+d_serializer = serializer(
     d1_field,
     d2_field,
 )
 
-a_serializer_with_child = create_serializer(
+a_serializer_with_child = serializer(
   a_field,
   child('d', serializer=d_serializer)
 )
 
-a_e_serializer = create_serializer(
+a_e_serializer = serializer(
   a_field,
   many('e', serializer=d_serializer)
 )
@@ -61,10 +61,10 @@ def test_field_validation():
     target = {}
 
     with pytest.raises(ValidationException):
-        a_field.to_internal(from_json, target)
+        a_field.deserialize(from_json, target)
 
     try:
-        a_field.to_internal(from_json, target)
+        a_field.deserialize(from_json, target)
     except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {'a': ['Failed', 'Failed, again']}
@@ -76,12 +76,12 @@ def test_serializer_validation():
     target = None
 
     with pytest.raises(ValidationException):
-        target = a_serializer.to_internal(from_json)
+        target = a_serializer.deserialize(from_json)
 
     assert target is None
 
     try:
-        a_serializer.to_internal(from_json)
+        a_serializer.deserialize(from_json)
     except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {
@@ -102,12 +102,12 @@ def test_serializer_with_child_validation():
     target = None
 
     with pytest.raises(ValidationException):
-        target = a_serializer_with_child.to_internal(from_json)
+        target = a_serializer_with_child.deserialize(from_json)
 
     assert target is None
 
     try:
-        a_serializer_with_child.to_internal(from_json)
+        a_serializer_with_child.deserialize(from_json)
     except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {
@@ -133,12 +133,12 @@ def test_serializer_with_many_validation():
     target = None
 
     with pytest.raises(ValidationException):
-        target = a_e_serializer.to_internal(from_json)
+        target = a_e_serializer.deserialize(from_json)
 
     assert target is None
 
     try:
-        a_e_serializer.to_internal(from_json)
+        a_e_serializer.deserialize(from_json)
     except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {
@@ -156,7 +156,7 @@ def test_validation_strings():
     f_field = field('f', validators=[validators.required()])
     g_field = field('g')
 
-    a_serializer = create_serializer(
+    a_serializer = serializer(
         a_field,
         f_field,
         g_field,
@@ -168,7 +168,7 @@ def test_validation_strings():
     }
 
     try:
-        a_serializer.to_internal(from_json)
+        a_serializer.deserialize(from_json)
     except Exception as e:
         assert hasattr(e, 'errors')
         assert e.errors == {

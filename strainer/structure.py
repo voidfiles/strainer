@@ -4,8 +4,8 @@ Structure
 
 Use these structures to build up a serializers.
 
-Every structure returns an object that has to methods. `to_representation`
-returns objects ready for serialization. `to_internal` will validate and
+Every structure returns an object that has two methods. `serialize`
+returns objects ready to be encoded into JSON, or other formats. `deserialize` will validate and
 return objects ready to be used internally, or it will raise a validation
 excepton.
 
@@ -15,14 +15,13 @@ import operator
 from .exceptions import ValidationException
 
 
-class Serializer(object):
-    """Serializer is an internal data structure that holds a  reference to
-    a to_representation, and to_internal function. All structures return one
-    these.
+class Translator(object):
+    """Translator is an internal data structure that holds a  reference to
+    a serialize and deserialize function. All structures return a translator.
     """
-    def __init__(self, to_representation, to_internal):
-        self.to_representation = to_representation
-        self.to_internal = to_internal
+    def __init__(self, serialize, deserialize):
+        self.serialize = serialize
+        self.deserialize = deserialize
 
 
 def run_validators(value, validators, context):
@@ -48,7 +47,7 @@ def field(source_field, target_field=None, validators=None,
     >>> Aonly = namedtuple('Aonly', 'a')
     >>> model = Aonly('b')
     >>> one_field = field('a')
-    >>> one_field.to_representation(model)
+    >>> one_field.deserialize(model)
     {'a': 'b'}
 
     :param str source_field: What attribute to get from a source object
@@ -73,7 +72,7 @@ def field(source_field, target_field=None, validators=None,
 
         return value
 
-    def to_representation(source, target, context=None):
+    def serialize(source, target, context=None):
         value = attr_getter(source)
 
         if formatters:
@@ -84,7 +83,7 @@ def field(source_field, target_field=None, validators=None,
 
         return target
 
-    def to_internal(source, target, context=None):
+    def deserialize(source, target, context=None):
         value = source.get(target_field)
 
         if multiple:
@@ -111,7 +110,7 @@ def field(source_field, target_field=None, validators=None,
 
         return target
 
-    return Serializer(to_representation, to_internal)
+    return Translator(serialize, deserialize)
 
 
 def dict_field(*args, **kwargs):
@@ -132,13 +131,13 @@ def child(source_field, target_field=None, serializer=None, validators=None):
 
     _attr_getter = operator.attrgetter(source_field)
 
-    def to_representation(source, target, context=None):
+    def serialize(source, target, context=None):
         sub_source = _attr_getter(source)
-        target[target_field] = serializer.to_representation(sub_source, context=context)
+        target[target_field] = serializer.serialize(sub_source, context=context)
 
         return target
 
-    def to_internal(source, target, context=None):
+    def deserialize(source, target, context=None):
         sub_source = source.get(target_field)
 
         if validators:
@@ -150,7 +149,7 @@ def child(source_field, target_field=None, serializer=None, validators=None):
                 })
 
         try:
-            target[source_field] = serializer.to_internal(sub_source, context=context)
+            target[source_field] = serializer.deserialize(sub_source, context=context)
         except ValidationException as e:
             raise ValidationException({
                 target_field: e.errors
@@ -158,7 +157,7 @@ def child(source_field, target_field=None, serializer=None, validators=None):
 
         return target
 
-    return Serializer(to_representation, to_internal)
+    return Translator(serialize, deserialize)
 
 
 def many(source_field, target_field=None, serializer=None, validators=None):
@@ -168,16 +167,16 @@ def many(source_field, target_field=None, serializer=None, validators=None):
 
     _attr_getter = operator.attrgetter(source_field)
 
-    def to_representation(source, target, context=None):
+    def serialize(source, target, context=None):
         sub_source = _attr_getter(source)
 
-        collector = [serializer.to_representation(i, context=context) for i in sub_source]
+        collector = [serializer.serialize(i, context=context) for i in sub_source]
 
         target[target_field] = collector
 
         return target
 
-    def to_internal(source, target, context=None):
+    def deserialize(source, target, context=None):
         sub_source = source.get(target_field, [])
         collector = []
         errors = []
@@ -192,7 +191,7 @@ def many(source_field, target_field=None, serializer=None, validators=None):
 
         for i in sub_source:
             try:
-                collector.append(serializer.to_internal(i, context=context))
+                collector.append(serializer.deserialize(i, context=context))
             except ValidationException as e:
                 errors += [e.errors]
 
@@ -205,25 +204,25 @@ def many(source_field, target_field=None, serializer=None, validators=None):
 
         return target
 
-    return Serializer(to_representation, to_internal)
+    return Translator(serialize, deserialize)
 
 
-def create_serializer(*fields):
+def serializer(*fields):
     """This function creates a serializer from a list fo fields"""
-    def to_representation(source, context=None):
+    def serialize(source, context=None):
         target = {}
 
-        [field.to_representation(source, target, context=context) for field in fields]
+        [field.serialize(source, target, context=context) for field in fields]
 
         return target
 
-    def to_internal(source, context=None):
+    def deserialize(source, context=None):
         target = {}
         errors = {}
 
         for field in fields:
             try:
-                field.to_internal(source, target, context=context)
+                field.deserialize(source, target, context=context)
             except ValidationException as e:
                 errors.update(e.errors)
 
@@ -232,4 +231,4 @@ def create_serializer(*fields):
 
         return target
 
-    return Serializer(to_representation, to_internal)
+    return Translator(serialize, deserialize)

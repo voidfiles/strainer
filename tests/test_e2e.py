@@ -1,4 +1,4 @@
-from strainer import create_serializer, field, child, many
+from strainer import serializer, field, child, many
 
 
 def test_back_and_fourth():
@@ -12,11 +12,11 @@ def test_back_and_fourth():
 
     obj = Object2()
 
-    serializer1 = create_serializer(
+    serializer1 = serializer(
         field('c')
     )
 
-    serializer3 = create_serializer(
+    serializer3 = serializer(
         field('a'),
         child('b', serializer=serializer1),
         many('d', serializer=serializer1),
@@ -24,6 +24,6 @@ def test_back_and_fourth():
 
     json_data = {'a': 2, 'b': {'c': 'b'}, 'd': [{'c': 'b'}, {'c': 'b'}]}
 
-    serialized_data = serializer3.to_representation(obj)
+    serialized_data = serializer3.serialize(obj)
     assert serialized_data == json_data
-    assert serialized_data == serializer3.to_internal(json_data)
+    assert serialized_data == serializer3.deserialize(json_data)

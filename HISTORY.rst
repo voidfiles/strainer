@@ -11,7 +11,8 @@ Unreleased
 * Added a dict_field, if source is dict, instead of an object
 * Added ability to pass validators to child, and many instances applying validation before moving to sub-element
 * Added tests around catching nested validation errors
-* Added preparers
+* Added formatters, so things can be formatted on the way out
+* Got rid of encoders, not the domain of this project
 * Everything can be imported from one namespace
 
 

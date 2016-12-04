@@ -1,6 +1,6 @@
 import pytest
 
-from strainer import (field, dict_field, create_serializer, child, many, validators, ValidationException)
+from strainer import (field, dict_field, serializer, child, many, validators, ValidationException)
 
 
 class ChildTestObject(object):
@@ -19,13 +19,13 @@ def test_field():
     serializer = field('a')
     test_obj = TestObject()
     target = {}
-    serializer.to_representation(test_obj, target)
+    serializer.serialize(test_obj, target)
 
     assert {'a': 1} == target
 
     from_json = {'a': 1}
     target = {}
-    serializer.to_internal(from_json, target)
+    serializer.deserialize(from_json, target)
 
     assert {'a': 1} == target
 
@@ -34,13 +34,13 @@ def test_dict_field():
     serializer = dict_field('a')
     test_obj = {'a': 'b'}
     target = {}
-    serializer.to_representation(test_obj, target)
+    serializer.serialize(test_obj, target)
 
     assert {'a': 'b'} == target
 
     from_json = {'a': 'b'}
     target = {}
-    serializer.to_internal(from_json, target)
+    serializer.deserialize(from_json, target)
 
     assert {'a': 'b'} == target
 
@@ -49,7 +49,7 @@ def test_field_custom_attr_gettr():
     serializer = field('a', attr_getter=lambda x: x.a + 1)
     test_obj = TestObject()
     target = {}
-    serializer.to_representation(test_obj, target)
+    serializer.serialize(test_obj, target)
 
     assert {'a': 2} == target
 
@@ -58,13 +58,13 @@ def test_field_multiple():
     serializer = field('d', multiple=True)
     test_obj = TestObject()
     target = {}
-    serializer.to_representation(test_obj, target)
+    serializer.serialize(test_obj, target)
 
     assert {'d': [1, 2]} == target
 
     from_json = {'d': [1, 2]}
     target = {}
-    serializer.to_internal(from_json, target)
+    serializer.deserialize(from_json, target)
 
     assert {'d': [1, 2]} == target
 
@@ -77,7 +77,7 @@ def test_field_multiple_validation():
     target = {}
     errors = None
     try:
-        serializer.to_internal(test_obj, target)
+        serializer.deserialize(test_obj, target)
     except ValidationException as e:
         errors = e.errors
 
@@ -85,33 +85,33 @@ def test_field_multiple_validation():
 
 
 def test_serializer():
-    serializer = create_serializer(
+    a_serializer = serializer(
         field('a')
     )
 
     test_obj = TestObject()
-    target = serializer.to_representation(test_obj)
+    target = a_serializer.serialize(test_obj)
 
     assert {'a': 1} == target
 
     from_json = {'a': 1}
-    target == serializer.to_internal(from_json)
+    target == a_serializer.deserialize(from_json)
 
     assert {'a': 1} == target
 
 
 def test_child():
-    child_serializer = create_serializer(
+    child_serializer = serializer(
         field('b1')
     )
 
-    serializer = create_serializer(
+    a_serializer = serializer(
         field('a'),
         child('b', serializer=child_serializer)
     )
 
     test_obj = TestObject()
-    target = serializer.to_representation(test_obj)
+    target = a_serializer.serialize(test_obj)
 
     assert {
       'a': 1,
@@ -127,23 +127,23 @@ def test_child():
       }
     }
 
-    target = serializer.to_internal(from_json)
+    target = a_serializer.deserialize(from_json)
 
     assert from_json == target
 
 
 def test_many():
-    child_serializer = create_serializer(
+    child_serializer = serializer(
         field('c1')
     )
 
-    serializer = create_serializer(
+    a_serializer = serializer(
         field('a'),
         many('c', serializer=child_serializer)
     )
 
     test_obj = TestObject()
-    target = serializer.to_representation(test_obj)
+    target = a_serializer.serialize(test_obj)
 
     reference = {
       'a': 1,
@@ -155,16 +155,16 @@ def test_many():
     }
 
     assert reference == target
-    target = serializer.to_internal(reference)
+    target = a_serializer.deserialize(reference)
     assert target == reference
 
 
 def test_nested_required():
-    child_serializer = create_serializer(
+    child_serializer = serializer(
         field('c1', validators=[validators.required()])
     )
 
-    serializer = create_serializer(
+    a_serializer = serializer(
         field('a'),
         many('c', serializer=child_serializer, validators=[validators.required()])
     )
@@ -174,7 +174,7 @@ def test_nested_required():
     }
 
     with pytest.raises(ValidationException):
-        serializer.to_internal(reference)
+        a_serializer.deserialize(reference)
 
     reference = {
       'a': 1,
@@ -183,7 +183,7 @@ def test_nested_required():
 
     errors = None
     try:
-        serializer.to_internal(reference)
+        a_serializer.deserialize(reference)
     except ValidationException as e:
         errors = e.errors
 
@@ -196,7 +196,7 @@ def test_nested_required():
 
     errors = None
     try:
-        serializer.to_internal(reference)
+        a_serializer.deserialize(reference)
     except ValidationException as e:
         errors = e.errors
 

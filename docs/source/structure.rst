@@ -71,7 +71,7 @@ From here, you can serialize objects
 .. code-block:: python
 
   >>> an_object = AnObject()
-  >>> a_serializer.to_representation(an_object)
+  >>> a_serializer.deserialize(an_object)
   {'a': 'a string', 'b': 1}
 
 
@@ -100,5 +100,5 @@ From here, you can serialize objects
 .. code-block:: python
 
   >>> an_object = AnObject()
-  >>> a_serializer.to_representation(an_object)
+  >>> a_serializer.deserialize(an_object)
   {'a': 'a string', 'b': 1}
