@@ -1,7 +1,6 @@
 import pytest
 
-from strainer.exceptions import ValidationException
-from strainer import validators
+from strainer import (validators, ValidationException)
 
 
 def test_integer():

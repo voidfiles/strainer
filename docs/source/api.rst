@@ -7,7 +7,7 @@ API
 .. automodule:: strainer.validators
    :members:
 
-.. automodule:: strainer.encoders
+.. automodule:: strainer.formatters
    :members:
 
 .. automodule:: strainer.exceptions

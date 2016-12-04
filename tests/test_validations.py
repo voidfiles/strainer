@@ -1,8 +1,6 @@
 import pytest
 
-from strainer.structure import field, create_serializer, child, many
-from strainer.exceptions import ValidationException
-from strainer import validators
+from strainer import (field, create_serializer, child, many, ValidationException, validators)
 
 
 class ChildTestObject(object):

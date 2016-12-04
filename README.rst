@@ -4,6 +4,9 @@ Strainer: Fast Functional Serializers
 .. image:: https://img.shields.io/pypi/v/pystrainer.svg
     :target: https://pypi.python.org/pypi/pystrainer
 
+.. image:: https://readthedocs.org/projects/strainer/badge/?version=latest
+    :target: https://strainer.readthedocs.io/en/latest/
+
 Strainer is a different take on serialization and validation in python.
 It utilizes a functional style over inheritance.
 
@@ -14,13 +17,17 @@ Serialization Example
 
 .. code-block:: python
 
+    from strainer import create_serializer, field, child, formatters, ValidationException
+
     artist_serializer = create_serializer(
       field('name', validations=[validators.required()])
     )
 
     album_schema = create_serializer(
       field('title', validations=[validators.required()]),
-      field('release_date', validations=[validators.required()]),
+      field('release_date',
+            validations=[validators.required(), validators.datetime()],
+            formatters=[formatters.format_datetime()]),
       child('artist', serializer=artist_serializer, validators=[validators.required()])
     )
 
@@ -46,7 +53,7 @@ Serialization Example
     pprint.pprint(simple_data)
 
     # {'artist': {'name': 'David Bowie'},
-    #  'release_date': datetime.date(1971, 12, 17),
+    #  'release_date': '1971-12-17',
     #  'title': 'Hunky Dory'}
 
 Validation Example

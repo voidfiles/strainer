@@ -1,8 +1,6 @@
 import pytest
 
-from strainer.structure import field, dict_field, create_serializer, child, many
-from strainer import validators
-from strainer.exceptions import ValidationException
+from strainer import (field, dict_field, create_serializer, child, many, validators, ValidationException)
 
 
 class ChildTestObject(object):
@@ -47,8 +45,8 @@ def test_dict_field():
     assert {'a': 'b'} == target
 
 
-def test_field_custom_to_representation():
-    serializer = field('a', to_representation=lambda x: x.a + 1)
+def test_field_custom_attr_gettr():
+    serializer = field('a', attr_getter=lambda x: x.a + 1)
     test_obj = TestObject()
     target = {}
     serializer.to_representation(test_obj, target)

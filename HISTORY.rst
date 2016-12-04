@@ -11,6 +11,9 @@ Unreleased
 * Added a dict_field, if source is dict, instead of an object
 * Added ability to pass validators to child, and many instances applying validation before moving to sub-element
 * Added tests around catching nested validation errors
+* Added preparers
+* Everything can be imported from one namespace
+
 
 0.0.5 (2016-11-29)
 ++++++++++++++++++

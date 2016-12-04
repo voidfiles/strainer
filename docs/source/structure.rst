@@ -25,8 +25,7 @@ During deserialization, you can apply validators. The validators will make sure 
 
 .. code-block:: python
 
-  from strainer import field
-  from strainer import validators
+  from strainer import field, validators
 
   a_field = field('a', validators=[validators.required(), validators.string(max_length=20)])
 
@@ -43,8 +42,7 @@ validation, otherwise all the values will be rejected.
 
 .. code-block:: python
 
-  from strainer import field
-  from strainer import validators
+  from strainer import field, validators
 
   a_field = field('a', multiple=True, validators=[validators.required(), validators.string(max_length=20)])
 

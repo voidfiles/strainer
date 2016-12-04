@@ -1,6 +1,5 @@
 from datetime import date
-import pprint
-from strainer import create_serializer, field, child
+from strainer import create_serializer, field, child, formatters
 
 
 def test_docs():
@@ -11,7 +10,7 @@ def test_docs():
 
     album_schema = create_serializer(
       field('title'),
-      field('release_date'),
+      field('release_date', formatters=[formatters.format_datetime()]),
       child('artist', serializer=artist_serializer)
     )
 
@@ -34,8 +33,8 @@ def test_docs():
 
     simple_data = album_schema.to_representation(album)
 
-    pprint.pprint(simple_data)
-
-    # {'artist': {'name': 'David Bowie'},
-    #  'release_date': datetime.date(1971, 12, 17),
-    #  'title': 'Hunky Dory'}
+    assert simple_data == {
+      'artist': {'name': 'David Bowie'},
+      'release_date': '1971-12-17',
+      'title': 'Hunky Dory'
+    }

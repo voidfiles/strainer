@@ -37,7 +37,7 @@ def run_validators(value, validators, context):
 
 
 def field(source_field, target_field=None, validators=None,
-          multiple=False, attr_getter=None):
+          multiple=False, attr_getter=None, formatters=None):
     """Constructs an indvidual field for a serializer, this is on the
     order of one key, and one value.
 
@@ -55,6 +55,7 @@ def field(source_field, target_field=None, validators=None,
     :param str target_field: What attribute to place the value on the target, optional.
                              If optional target is equal to source_field
     :param list validators: A list of validators that will be applied during deserialization.
+    :param list formaters: A list of formaters that will be applied during serialization.
     :param boolean multiple: If true will treat input as a list, and apply validation to each element in the list
     :param function attr_getter: Overrides the default method for getting the soure_field off of an object
     """
@@ -73,7 +74,13 @@ def field(source_field, target_field=None, validators=None,
         return value
 
     def to_representation(source, target, context=None):
-        target[target_field] = attr_getter(source)
+        value = attr_getter(source)
+
+        if formatters:
+            for formater in formatters:
+                value = formater(value, context)
+
+        target[target_field] = value
 
         return target
 
