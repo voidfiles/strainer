@@ -2,46 +2,78 @@
 Structure
 =========
 
-When building a serializer, you will need certain structures.
+Use these structures to build up a serializers.
+
+Every structure returns an object that has to methods. `to_representation`
+returns objects ready for serialization. `to_internal` will validate and
+return objects ready to be used internally, or it will raise a validation
+excepton.
+
 
 """
 import operator
-
-from collections import namedtuple
-
 from .exceptions import ValidationException
 
-Serializer = namedtuple('Serializer', 'to_representation to_internal')
+
+class Serializer(object):
+    """Serializer is an internal data structure that holds a  reference to
+    a to_representation, and to_internal function. All structures return one
+    these.
+    """
+    def __init__(self, to_representation, to_internal):
+        self.to_representation = to_representation
+        self.to_internal = to_internal
+
+
+def run_validators(value, validators, context):
+    errors = []
+    for validator in validators:
+        try:
+            value = validator(value, context=context)
+        except ValidationException as e:
+            errors += [e.errors]
+
+    return value, errors
 
 
 def field(source_field, target_field=None, validators=None,
-          multiple=False, to_representation=None):
+          multiple=False, attr_getter=None):
     """Constructs an indvidual field for a serializer, this is on the
     order of one key, and one value.
 
     The field determines the mapping between keys internaly, and externally.
     As well as the proper validation at the level of the field.
 
+    >>> from collections import namedtuple
+    >>> Aonly = namedtuple('Aonly', 'a')
+    >>> model = Aonly('b')
+    >>> one_field = field('a')
+    >>> one_field.to_representation(model)
+    {'a': 'b'}
+
+    :param str source_field: What attribute to get from a source object
+    :param str target_field: What attribute to place the value on the target, optional.
+                             If optional target is equal to source_field
+    :param list validators: A list of validators that will be applied during deserialization.
+    :param boolean multiple: If true will treat input as a list, and apply validation to each element in the list
+    :param function attr_getter: Overrides the default method for getting the soure_field off of an object
     """
     target_field = target_field if target_field else source_field
     validators = validators if validators else []
-    _to_representation = to_representation or operator.attrgetter(source_field)
+    attr_getter = attr_getter or operator.attrgetter(source_field)
 
     def _validate(value, field, context=None):
-        errors = []
-        for validator in validators:
-            try:
-                value = validator(value, context=context)
-            except ValidationException as e:
-                errors += [e.errors]
+        value, errors = run_validators(value, validators, context)
 
         if errors:
             raise ValidationException({
-                target_field: errors
+                field: errors
             })
 
+        return value
+
     def to_representation(source, target, context=None):
-        target[target_field] = _to_representation(source)
+        target[target_field] = attr_getter(source)
 
         return target
 
@@ -50,18 +82,23 @@ def field(source_field, target_field=None, validators=None,
 
         if multiple:
             errors = {}
+            new_value = []
 
             for i, v in enumerate(value):
                 try:
-                    _validate(value, i, context=context)
+                    new_value += [_validate(v, i, context=context)]
                 except ValidationException as e:
                     errors.update(e.errors)
 
+            value = new_value
+
             if errors:
-                raise ValidationException(errors)
+                raise ValidationException({
+                    target_field: errors
+                })
 
         else:
-            _validate(value, target_field, context=context)
+            value = _validate(value, target_field, context=context)
 
         target[source_field] = value
 
@@ -70,7 +107,16 @@ def field(source_field, target_field=None, validators=None,
     return Serializer(to_representation, to_internal)
 
 
-def child(source_field, target_field=None, serializer=None):
+def dict_field(*args, **kwargs):
+    """dict_field is just like field except that it pulls attributes
+    out of a dict, instead of off an object.
+
+    """
+    kwargs.setdefault('attr_getter', lambda d: d.get(args[0]))
+    return field(*args, **kwargs)
+
+
+def child(source_field, target_field=None, serializer=None, validators=None):
     """A child is a nested serializer.
 
     """
@@ -87,6 +133,15 @@ def child(source_field, target_field=None, serializer=None):
 
     def to_internal(source, target, context=None):
         sub_source = source.get(target_field)
+
+        if validators:
+            sub_source, errors = run_validators(sub_source, validators, context)
+
+            if errors:
+                raise ValidationException({
+                    target_field: errors
+                })
+
         try:
             target[source_field] = serializer.to_internal(sub_source, context=context)
         except ValidationException as e:
@@ -99,7 +154,7 @@ def child(source_field, target_field=None, serializer=None):
     return Serializer(to_representation, to_internal)
 
 
-def many(source_field, target_field=None, serializer=None):
+def many(source_field, target_field=None, serializer=None, validators=None):
     """Many allows you to nest a list of serializers"""
 
     target_field = target_field if target_field else source_field
@@ -116,9 +171,17 @@ def many(source_field, target_field=None, serializer=None):
         return target
 
     def to_internal(source, target, context=None):
-        sub_source = source.get(target_field)
+        sub_source = source.get(target_field, [])
         collector = []
         errors = []
+
+        if validators:
+            sub_source, errors = run_validators(sub_source, validators, context)
+
+            if errors:
+                raise ValidationException({
+                    target_field: errors
+                })
 
         for i in sub_source:
             try:

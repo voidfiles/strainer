@@ -3,6 +3,15 @@
 Release History
 ---------------
 
+Unreleased
+++++++++++++++++++
+
+* Fixed a bug with multiple validation, pointing to the correct index
+* Fixed a bug that applied vlaidation to entire array in multiple instead of elements
+* Added a dict_field, if source is dict, instead of an object
+* Added ability to pass validators to child, and many instances applying validation before moving to sub-element
+* Added tests around catching nested validation errors
+
 0.0.5 (2016-11-29)
 ++++++++++++++++++
 

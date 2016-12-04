@@ -7,9 +7,7 @@ Strainer: Fast Functional Serializers
 Strainer is a different take on serialization and validation in python.
 It utilizes a functional style over inheritance.
 
-An example of Strainer, the example has been borrowed from `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_
-
-
+An example of Strainer, the example is modified from the `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_ example.
 
 Serialization Example
 ---------------------
@@ -23,7 +21,7 @@ Serialization Example
     album_schema = create_serializer(
       field('title', validations=[validators.required()]),
       field('release_date', validations=[validators.required()]),
-      child('artist', serializer=artist_serializer)
+      child('artist', serializer=artist_serializer, validators=[validators.required()])
     )
 
     class Artist(object):
@@ -51,17 +49,24 @@ Serialization Example
     #  'release_date': datetime.date(1971, 12, 17),
     #  'title': 'Hunky Dory'}
 
-Validation
-----------
+Validation Example
+------------------
 
 Give input is a simple python dict freshly decoded from raw JSON.
 
 .. code-block:: python
 
+  input = {
+      'title': 'Hunky Dory',
+      'release_date': '1971-12-17',
+  }
+
   try:
       validated_input = question_serializer.to_internal(input)
   except ValidationException as e:
       print e.errors
+
+  # {'artist': ['This field is required']}
 
 
 
