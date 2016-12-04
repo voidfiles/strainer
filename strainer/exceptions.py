@@ -12,3 +12,9 @@ class ValidationException(Exception):
     def __init__(self, errors):
         super(ValidationException, self).__init__()
         self.errors = errors
+
+    def __unicode__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return unicode(self.errors)

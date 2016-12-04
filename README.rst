@@ -17,16 +17,19 @@ Serialization Example
 
 .. code-block:: python
 
-    from strainer import serializer, field, child, formatters, ValidationException
+    import datetime
+    from strainer import (serializer, field, child,
+                          formatters, validators,
+                          ValidationException)
 
     artist_serializer = serializer(
-      field('name', validations=[validators.required()])
+      field('name', validators=[validators.required()])
     )
 
     album_schema = serializer(
-      field('title', validations=[validators.required()]),
+      field('title', validators=[validators.required()]),
       field('release_date',
-            validations=[validators.required(), validators.datetime()],
+            validators=[validators.required(), validators.datetime()],
             formatters=[formatters.format_datetime()]),
       child('artist', serializer=artist_serializer, validators=[validators.required()])
     )
@@ -45,37 +48,27 @@ Serialization Example
     album = Album(
         artist=bowie,
         title='Hunky Dory',
-        release_date=date(1971, 12, 17)
+        release_date=datetime.datetime(1971, 12, 17)
     )
 
-    simple_data = album_schema.deserialize({}, album)
-
-    pprint.pprint(simple_data)
-
-    # {'artist': {'name': 'David Bowie'},
-    #  'release_date': '1971-12-17',
-    #  'title': 'Hunky Dory'}
-
-Validation Example
-------------------
-
-Give input is a simple python dict freshly decoded from raw JSON.
+Given that we can now serialize, deserialize, and validate data
 
 .. code-block:: python
 
-  input = {
-      'title': 'Hunky Dory',
-      'release_date': '1971-12-17',
-  }
+    >>> album_schema.serialize(album)
+    {'artist': {'name': 'David Bowie'},
+     'release_date': '1971-12-17T00:00:00',
+     'title': 'Hunky Dory'}
+    >>> album_schema.deserialize(album_schema.serialize(album))
+    {'artist': {'name': 'David Bowie'},
+     'release_date': datetime.datetime(1971, 12, 17, 0, 0, tzinfo=<iso8601.Utc>),
+     'title': 'Hunky Dory'}
+    >>> input = album_schema.serialize(album)
+    >>> del input['artist']
+    >>> album_schema.deserialize(input)
+    ValidationException: {'artist': ['This field is required']}
 
-  try:
-      validated_input = question_serializer.serialize(input)
-  except ValidationException as e:
-      print e.errors
-
-  # {'artist': ['This field is required']}
-
-
+the example has been borrowed from `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_
 
 Installation
 ------------
