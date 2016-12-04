@@ -1,10 +1,10 @@
-Welcome to Strainer's documentation!
-====================================
+Strainer: Fast Functional Serializers
+=====================================
 
 Strainer is a different take on serialization and validation in python.
 It utilizes a functional style over inheritance.
 
-An example of Strainer, the example has been borrowed from `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_
+An example of Strainer
 
 .. code-block:: python
 
@@ -46,6 +46,9 @@ An example of Strainer, the example has been borrowed from `Marshmallow <https:/
     # {'artist': {'name': 'David Bowie'},
     #  'release_date': '1971-12-17',
     #  'title': 'Hunky Dory'}
+
+the example has been borrowed from `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_
+
 
 .. toctree::
    :maxdepth: 2

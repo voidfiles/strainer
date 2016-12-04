@@ -14,7 +14,7 @@ Unreleased
 * Added formatters, so things can be formatted on the way out
 * Got rid of encoders, not the domain of this project
 * Everything can be imported from one namespace
-
+* Changed the API from to_representation/to_internal to serialize/deserialize
 
 0.0.5 (2016-11-29)
 ++++++++++++++++++
