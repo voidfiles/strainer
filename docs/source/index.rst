@@ -8,13 +8,13 @@ An example of Strainer
 
 .. code-block:: python
 
-    from strainer import create_serializer, field, child, formatters, ValidationException
+    from strainer import serializer, field, child, formatters, ValidationException
 
-    artist_serializer = create_serializer(
+    artist_serializer = serializer(
       field('name', validations=[validators.required()])
     )
 
-    album_schema = create_serializer(
+    album_schema = serializer(
       field('title', validations=[validators.required()]),
       field('release_date',
             validations=[validators.required(), validators.datetime()],

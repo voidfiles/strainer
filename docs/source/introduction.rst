@@ -32,9 +32,9 @@ To start, we will create serializers for each model. The job of a serializer is 
 
 .. code-block:: python
 
-  from strainer import create_serializer, field, formatters
+  from strainer import serializer, field, formatters
 
-  question_serializer = create_serializer(
+  question_serializer = serializer(
     field('question_text'),
     field('pub_date', formatters=[formatters.format_datetime()]),
   )
@@ -61,14 +61,14 @@ We need to define Choice serializer, and then nest it in the question serializer
 
 .. code-block:: python
 
-  from strainer import create_serializer, field, many, formatters
+  from strainer import serializer, field, many, formatters
 
-  choice_serializer = create_serializer(
+  choice_serializer = serializer(
     field('choice_text'),
     field('votes'),
   )
 
-  question_serializer = create_serializer(
+  question_serializer = serializer(
     field('question_text'),
     field('pub_date', formatters=[formatters.format_datetime()]),
     many('choices', serializer=choice_serializer)
@@ -103,9 +103,9 @@ In order to do that we need to describe how our data should look with a littler 
 
 .. code-block:: python
 
-  from strainer import create_serializer, field, validators, formatters
+  from strainer import serializer, field, validators, formatters
 
-  question_serializer = create_serializer(
+  question_serializer = serializer(
     field('question_text', validators=[
       validators.required(),
       validators.string(max_length=200),

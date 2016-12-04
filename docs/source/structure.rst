@@ -59,9 +59,9 @@ A serializer bundles a bunch of fields together.
 
 .. code-block:: python
 
-  from strainer import create_serializer, field
+  from strainer import serializer, field
 
-  a_serializer = create_serializer(
+  a_serializer = serializer(
     field('a'),
     field('b'),
   )
@@ -83,13 +83,13 @@ child, or many.
 
 .. code-block:: python
 
-  from strainer import create_serializer, field
+  from strainer import serializer, field
 
-  c_serializer = create_serializer(
+  c_serializer = serializer(
 
   )
 
-  a_serializer = create_serializer(
+  a_serializer = serializer(
     field('a'),
     field('b'),
     child()
