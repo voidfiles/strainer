@@ -3,7 +3,12 @@
 Release History
 ---------------
 
-Unreleased
+0.0.7
+++++++++++++++++++
+
+* Fixed a bug with datetime validators
+
+0.0.6
 ++++++++++++++++++
 
 * Fixed a bug with multiple validation, pointing to the correct index

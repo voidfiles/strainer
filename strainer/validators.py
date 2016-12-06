@@ -77,6 +77,9 @@ def boolean(value, context=None):
 @export_validator
 def datetime(value, default_tzinfo=iso8601.UTC, context=None):
     """validates that a a field is an ISO 8601 string, and converts it to a datetime object."""
+    if not value:
+        return
+
     try:
         return iso8601.parse_date(value, default_timezone=default_tzinfo)
     except iso8601.ParseError as e:

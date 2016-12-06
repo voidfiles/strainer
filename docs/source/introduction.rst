@@ -1,80 +1,62 @@
 Introduction to Strainer
 ========================
 
-Because Strainer was built with web applications in mind, here is an overview of Strainer that
-borrows from the `Django tutorial <https://docs.djangoproject.com/en/1.10/intro/tutorial01/>`_.
+Strainer was built with http json api's in mind with that in mind here is an informal overview of how to use strainer in that domain.
+
+The goal of this document is to give you enough technical specifics to understand how Strainer works, but this isn’t intended to be a tutorial or reference. Once you have your barings dive into the more technical parts fo the documentation.
 
 Background
 ----------
 
-Here are the models we will use.
+Strainer was built to serialize rich Python objects into simple datastructures. You might use Strainer with an object relation mapper like Django's ORM, or SQLAlchemy. So, first we are going to define some models that we will use for the rest of the introduction.
+
+We are going to cover some aspects of creating an API that will track RSS feeds, and their items. Here are two simple models that could represent RSS Feeds and their items.
 
 .. code-block:: python
 
-  class Question(object):
-      def __init__(self, question_text, pub_date, choices)
-          self.question_text = question_text
+  class Feed(object):
+      def __init__(self, feed, name, items)
+          self.feed = feed
+          self.name = name
+          self.items = items
+
+  class FeedItem(object):
+      def __init__(self, title, pub_date):
+          self.title = title
           self.pub_date = pub_date
-          self.choices = choices
-
-  class Choice(object):
-      def __init__(self, choice_text, votes):
-          self.choice_text = choice_text
-          self.votes = votes
-
 
 We have the models, but now we want to create a JSON API for our models. We will need to serialize our models, which are rich python objects, into simple dicts so that we may convert them into JSON. First step is to create the  serializer.
 
-Create The Serializer
----------------------
+Create A Feed Serializer
+------------------------
 
-To start, we will create serializers for each model. The job of a serializer is to take a rich python object and boil it down to a simple python dict that can be eaisly converted into JSON.
+To start, we will create serializers for each model. The job of a serializer is to take a rich python object and boil it down to a simple python dict that can be eaisly converted into JSON. Give the Feed model we just created a serializer might look like this.
 
 .. code-block:: python
 
   from strainer import serializer, field, formatters
 
-  question_serializer = serializer(
-    field('question_text'),
-    field('pub_date', formatters=[formatters.format_datetime()]),
+  feed_serializer = serializer(
+    field('feed'),
+    field('name', formatters=[formatters.format_datetime()]),
   )
 
-This is pretty straighforward. We are creating a serializer, that takes two properties from a Question model, question_text, and pub_date. Now, if we have a question model, we can convert it into JSON like this.
-
-.. code-block:: python
-
-  >>> question = Question('What is the meaning of life?', pub_date=datetime.utcnow())
-  >>> question_serializer.deserialize(question)
-  {
-    'question_text': 'What is the meaning of life?',
-    'pub_date': '2016-11-25T20:13:05.946126',
-  }
-
-This output can eaisly be encoded into JSON, or any other wire format you may choose to use.
-
-Nesting Serializers
--------------------
-
-We want to returna JSON response that has a question object, with nested choice objects.
-
-We need to define Choice serializer, and then nest it in the question serializer.
+This serializer will map the feed, and name attribites into a simple python dict. Now, we can nest the item serializer into the feed serializer, here's how.
 
 .. code-block:: python
 
   from strainer import serializer, field, many, formatters
 
-  choice_serializer = serializer(
-    field('choice_text'),
-    field('votes'),
+  feed_item_serializer = serializer(
+    field('title'),
+    field('pub_date'),
   )
 
-  question_serializer = serializer(
-    field('question_text'),
-    field('pub_date', formatters=[formatters.format_datetime()]),
-    many('choices', serializer=choice_serializer)
+  feed_serializer = serializer(
+    field('feed'),
+    field('name'),
+    many('items', serializer=feed_item_serializer),
   )
-
-Now, we can take a question object, that has a set of choices, and return them all in one go.
 
 .. code-block:: python
 

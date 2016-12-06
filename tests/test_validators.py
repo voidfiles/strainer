@@ -1,4 +1,5 @@
 import pytest
+import datetime
 
 from strainer import (validators, ValidationException)
 
@@ -55,3 +56,10 @@ def test_boolean():
     assert False is validator(False)
     assert False is validator(None)
     assert False is validator(0)
+
+
+def test_datetime():
+    validator = validators.datetime()
+    assert type(validator('1970-01-01')) is datetime.datetime
+    assert validator('') is None
+    assert validator(None) is None
