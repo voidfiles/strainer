@@ -46,7 +46,7 @@ def string(value, max_length=None, context=None):
         value = text_type(value)
     except (TypeError, ValueError):
         raise ValidationException('This field isn\'t a string')
-    print "String validator value: %s max_length: %s" % (value, max_length)
+
     if max_length and len(value) > max_length:
         raise ValidationException('This field is to long, max length is %s' % (max_length))
 

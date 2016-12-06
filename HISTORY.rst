@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+0.0.8
+++++++++++++++++++
+
+* Removed an errant print statement
+
 0.0.7
 ++++++++++++++++++
 
