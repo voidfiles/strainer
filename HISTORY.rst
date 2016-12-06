@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+0.0.9
+++++++++++++++++++
+
+* Fixing python 3 comptatability issue
+
 0.0.8
 ++++++++++++++++++
 
