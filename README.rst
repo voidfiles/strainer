@@ -8,9 +8,8 @@ Strainer: Fast Functional Serializers
     :target: https://strainer.readthedocs.io/en/latest/
 
 Strainer is a different take on serialization and validation in python.
-It utilizes a functional style over inheritance.
+It utilizes a functional style over classes.
 
-An example of Strainer, the example is modified from the `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_ example.
 
 Serialization Example
 ---------------------
@@ -51,7 +50,7 @@ Serialization Example
         release_date=datetime.datetime(1971, 12, 17)
     )
 
-Given that we can now serialize, deserialize, and validate data
+Now we can serialize, deserialize, and validate data
 
 .. code-block:: python
 
@@ -68,7 +67,7 @@ Given that we can now serialize, deserialize, and validate data
     >>> album_schema.deserialize(input)
     ValidationException: {'artist': ['This field is required']}
 
-the example has been borrowed from `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_
+The example has been borrowed from `Marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_ and tweaked.
 
 Installation
 ------------
