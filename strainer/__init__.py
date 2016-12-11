@@ -1,5 +1,5 @@
 __title__ = 'strainer'
-__version__ = '0.0.9'
+__version__ = '1.0.0'
 __author__ = 'Alex Kessinger'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2016 Alex Kessiger'
@@ -9,4 +9,5 @@ from .exceptions import ValidationException
 from strainer import formatters
 from strainer import validators
 
-__all__ = (serializer, many, child, field, dict_field, ValidationException, formatters, validators)
+__all__ = (serializer, many, child, field, dict_field,
+           ValidationException, formatters, validators)

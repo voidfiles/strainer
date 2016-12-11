@@ -3,10 +3,11 @@
 Release History
 ---------------
 
-Unreleased
+1.0.0
 ++++++++++
 
-- Docs
+- Updating docs
+- Making it official
 
 0.0.9
 ++++++++++++++++++
