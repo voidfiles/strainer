@@ -15,7 +15,7 @@ We are going to cover some aspects of creating an API that will track RSS feeds,
 .. code-block:: python
 
   class Feed(object):
-      def __init__(self, feed, name, items)
+      def __init__(self, feed, name, items):
           self.feed = feed
           self.name = name
           self.items = items
@@ -34,11 +34,11 @@ To start, we will create serializers for each model. The job of a serializer is 
 
 .. code-block:: python
 
-  from strainer import serializer, field, formatters
+  from strainer import serializer, field, formatters, validators
 
   feed_serializer = serializer(
-    field('feed', validators=[validators.required()),
-    field('name', validators=[validators.required()),
+    field('feed', validators=[validators.required()]),
+    field('name', validators=[validators.required()]),
   )
 
 This serializer will map the feed, and name attribites into a simple python dict. Now, we can nest the item serializer into the feed serializer, here's how.
@@ -54,8 +54,8 @@ This serializer will map the feed, and name attribites into a simple python dict
   )
 
   feed_serializer = serializer(
-    field('feed', validators=[validators.required()),
-    field('name', validators=[validators.required()),
+    field('feed', validators=[validators.required()]),
+    field('name', validators=[validators.required()]),
     many('items', serializer=feed_item_serializer),
   )
 
@@ -67,21 +67,15 @@ We can now use the serializer. We first can instantiate some models, and then we
 
 .. code-block:: python
 
+  >>> import datetime
   >>> feed_items = [FeedItem('A Title', datetime.datetime(2016, 11, 10, 10, 15))]
   >>> feed_items += [FeedItem('Another Title', datetime.datetime(2016, 11, 10, 10, 20))]
   >>> feed = Feed('http://example.org/feed.xml', 'A Blog', feed_items)
   >>> feed_serializer.serialize(feed)
-  {
-    'feed': 'http://example.org/feed.xml',
-    'name': 'A Blog',
-    'items': [{
-      'title': 'A Title',
-      'pub_date': '2016-11-10T10:15:00',
-    }, {
-      'title': 'Another Title',
-      'pub_date': '2016-11-10T10:20:00',
-    }]
-  }
+  {'feed': 'http://example.org/feed.xml',
+   'items': [{'pub_date': '2016-11-10T10:15:00', 'title': 'A Title'},
+    {'pub_date': '2016-11-10T10:20:00', 'title': 'Another Title'}],
+   'name': 'A Blog'}
 
 At this point, if we had REST API, we could convert this simple data structure into JSON and return it as the response body.
 
@@ -94,16 +88,12 @@ Since, we have already described our data, including what makes it valid, we can
 
 .. code-block:: python
 
-  >>> feed_item
-  {
-    'title': 'A Title',
-    'pub_date': '2016-11-10T10:15:00',
+  feed_item = {
+      'title': 'A Title',
+      'pub_date': '2016-11-10T10:15:00',
   }
-  >>> feed_item_serializer.deserialize(feed_item)
-  {
-    'title': 'A Title',
-    'pub_date': datetime.datetime(2016, 11, 10, 10, 15),
-  }
+  print feed_item_serializer.deserialize(feed_item)
+  # {'pub_date': datetime.datetime(2016, 11, 10, 10, 15, tzinfo=<iso8601.Utc>), 'title': 'A Title'}
 
 
 At this point, we could take that deserialized input and instantiate a FeedItem oject. If we were using an ORM we could then persist that object to the database.

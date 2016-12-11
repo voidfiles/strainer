@@ -109,7 +109,7 @@ When creating a serializer, often one will need to model one object nested in an
 
 .. code-block:: python
 
-  from strainer import serializer, field
+  from strainer import serializer, field, child
 
   c_serializer = serializer(
     field('c1'),
@@ -117,7 +117,7 @@ When creating a serializer, often one will need to model one object nested in an
 
   a_serializer = serializer(
     field('b'),
-    child('c'),
+    child('c', serializer=c_serializer),
   )
 
 Target Field
@@ -135,7 +135,7 @@ Sometimes, the field name in the output isn't always the same as the attribute n
 
   a_serializer = serializer(
     field('b'),
-    child('c', target_field='a'),
+    child('c', target_field='a', serializer=c_serializer),
   )
 
 Now `a_serializer` will serialize the attribute `c` to the field `a` in the output, and during deserialization the reverse will happen.
@@ -157,7 +157,7 @@ In this example you may want to require that the child object exists.
 
   a_serializer = serializer(
     field('b'),
-    child('c', validators=[validators.required()]),
+    child('c', validators=[validators.required()], serializer=c_serializer),
   )
 
 
@@ -176,7 +176,7 @@ The Many structure is like the Child structure. It allows you to nest objects. T
 
   a_serializer = serializer(
     field('b'),
-    many('c', validators=[validators.required()]),
+    many('c', validators=[validators.required()], serializer=c_serializer),
   )
 
 

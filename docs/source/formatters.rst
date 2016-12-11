@@ -15,10 +15,11 @@ This formatter will take a datetime, or a date object and convert it into an ISO
 
 .. code-block:: python
 
+  >>> import datetime
   >>> from strainer import formatters
   >>> dt_formatter = formatters.format_datetime()
   >>> dt_formatter(datetime.datetime(1984, 6, 11))
-  "1984-6-11T00:00.00"
+  '1984-06-11T00:00:00'
 
 
 Custom Formatters
@@ -30,10 +31,13 @@ A formatter returns a function that will be used to format a value before serial
 
   def custom_formatter():
       def _my_formatter(value, context=None):
-          return '%s is silly.'
+          return '%s is silly.' % (value)
+
+      return _my_formatter
 
   my_formatter = custom_formatter()
-  my_formatter('A clown') # A clown is silly
+  print my_formatter('A clown')
+  # A clown is silly
 
 In practice it's probably better to use the export_formatter decorator. It's as simple way to create a formatter.
 

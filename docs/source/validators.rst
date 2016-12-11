@@ -38,7 +38,7 @@ Will validate that a value is a string
 
   >>> from strainer import validators
   >>> string_validators = validators.string()
-  >>> int_validators(1)
+  >>> string_validators(1)
   '1'
 
 
@@ -54,32 +54,17 @@ required
 
 Will validate that a value exists and that it is not falsey. It will accept `0`, but raise an exception on `False`, `None`, `''`, `[]`, and `{}`.
 
-.. code-block:: python
-
-  >>> from strainer import validators
-  >>> validators.required()
 
 boolean
 ^^^^^^^
 
 Will coerce value into either a `True`, or `False` value. `0`, `False`, `None`, `''`, '[]', and `{}` would all count as `False` values, anything else would be `True`.
 
-.. code-block:: python
-
-  >>> from strainer import validators
-  >>> validators.boolean()
 
 datetime
 ^^^^^^^^
 
 This validator will attempt to parse an ISO 8601 string into a python datetime object.
-
-.. code-block:: python
-
-  >>> from strainer import validators
-  >>> dt_validator = validators.datetime()
-  >>> dt_validator('1984-06-11')
-  datetime.datetime(1984, 6, 11)
 
 The default timezone is UTC, but you can modify that by passing a `default_tzinfo`.
 
@@ -91,9 +76,12 @@ A validtora returns a function that will be used to validate a value during seri
 
 .. code-block:: python
 
-  from strainer import validators
+  from strainer import validators, ValidationException
 
-  @formatters.export_validators
+  @validators.export_validator
   def my_silly_validators(value, context=None):
+      if value == 'An apple':
+          raise ValidationException("An apple is not silly")
+
       return '%s is silly.' % (value)
 
