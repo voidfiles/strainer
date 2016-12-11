@@ -10,8 +10,7 @@ Strainer: Fast Functional Serializers
 .. image:: https://travis-ci.org/voidfiles/strainer.svg?branch=master
     :target: https://travis-ci.org/voidfiles/strainer
 
-Strainer is a different take on serialization and validation in python.
-It utilizes a functional style over classes.
+Strainer is a different take on serialization and validation in python. It utilizes a functional style over classes.
 
 Strainer officially supports Python 2.6–2.7 & 3.4–3.5, and runs great on PyPy.
 
@@ -22,6 +21,7 @@ Features
 - Complex Python object serialization
 - Data de-serialization
 - Data Validation
+- [Speed](https://voidfiles.github.io/python-serialization-benchmark/)
 
 Serialization Example
 ---------------------
