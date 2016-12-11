@@ -21,7 +21,7 @@ Features
 - Complex Python object serialization
 - Data de-serialization
 - Data Validation
-- (Speed)[https://voidfiles.github.io/python-serialization-benchmark/]
+- `Speed <https://voidfiles.github.io/python-serialization-benchmark/>`_
 
 Serialization Example
 ---------------------
