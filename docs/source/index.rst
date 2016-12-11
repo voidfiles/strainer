@@ -1,10 +1,11 @@
 Strainer: Fast Functional Serializers
 =====================================
 
-Strainer is a different take on serialization and validation in python.
-It utilizes a functional style over inheritance.
+Strainer is a different take on object serialization and validation in python.
 
-An example of Strainer
+It utilizes a functional style over classes.
+
+A Strainer Example
 
 .. code-block:: python
 
