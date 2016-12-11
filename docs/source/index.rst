@@ -67,6 +67,8 @@ the example has been borrowed from `Marshmallow <https://marshmallow.readthedocs
 
    introduction
    structure
+   validators
+   formatters
    api
 
 
