@@ -42,6 +42,9 @@ def integer(value, bounds=None, context=None):
 @export_validator
 def string(value, max_length=None, context=None):
     """converts a value into a string, optionally with a max length"""
+    if not value:
+        return value
+
     try:
         value = text_type(value)
     except (TypeError, ValueError):

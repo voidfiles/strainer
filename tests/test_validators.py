@@ -23,7 +23,9 @@ def test_string():
     validator = validators.string()
     assert validator('1') == '1'
     assert validator(1) == '1'
-    assert validator(None) == 'None'
+    assert validator(None) == None
+    assert validator([]) == []
+    assert validator({}) == {}
 
     validator = validators.string(max_length=5)
 
