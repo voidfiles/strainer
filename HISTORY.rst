@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+
+1.0.1
+++++++++++
+
+- refining validators
+- added attr_getter to child, and many
+
 1.0.0
 ++++++++++
 

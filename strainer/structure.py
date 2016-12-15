@@ -122,14 +122,14 @@ def dict_field(*args, **kwargs):
     return field(*args, **kwargs)
 
 
-def child(source_field, target_field=None, serializer=None, validators=None):
+def child(source_field, target_field=None, serializer=None, validators=None, attr_getter=None):
     """A child is a nested serializer.
 
     """
 
     target_field = target_field if target_field else source_field
 
-    _attr_getter = operator.attrgetter(source_field)
+    _attr_getter = attr_getter if attr_getter else operator.attrgetter(source_field)
 
     def serialize(source, target, context=None):
         sub_source = _attr_getter(source)
@@ -160,12 +160,12 @@ def child(source_field, target_field=None, serializer=None, validators=None):
     return Translator(serialize, deserialize)
 
 
-def many(source_field, target_field=None, serializer=None, validators=None):
+def many(source_field, target_field=None, serializer=None, validators=None, attr_getter=None):
     """Many allows you to nest a list of serializers"""
 
     target_field = target_field if target_field else source_field
 
-    _attr_getter = operator.attrgetter(source_field)
+    _attr_getter = attr_getter if attr_getter else operator.attrgetter(source_field)
 
     def serialize(source, target, context=None):
         sub_source = _attr_getter(source)

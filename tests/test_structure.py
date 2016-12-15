@@ -110,15 +110,22 @@ def test_child():
         child('b', serializer=child_serializer)
     )
 
+    a_dict_serializer = serializer(
+        dict_field('a'),
+        child('b', serializer=child_serializer, attr_getter=lambda x: x.get('b'))
+    )
+
     test_obj = TestObject()
     target = a_serializer.serialize(test_obj)
+
+    target2 = a_dict_serializer.serialize(test_obj.__class__.__dict__)
 
     assert {
       'a': 1,
       'b': {
         'b1': 2,
       }
-    } == target
+    } == target == target2
 
     from_json = {
       'a': 1,
@@ -142,8 +149,14 @@ def test_many():
         many('c', serializer=child_serializer)
     )
 
+    a_dict_serializer = serializer(
+        dict_field('a'),
+        many('c', serializer=child_serializer, attr_getter=lambda x: x.get('c'))
+    )
+
     test_obj = TestObject()
     target = a_serializer.serialize(test_obj)
+    target2 = a_dict_serializer.serialize(TestObject.__dict__)
 
     reference = {
       'a': 1,
@@ -154,7 +167,7 @@ def test_many():
       }]
     }
 
-    assert reference == target
+    assert reference == target == target2
     target = a_serializer.deserialize(reference)
     assert target == reference
 
