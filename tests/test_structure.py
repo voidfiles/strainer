@@ -1,6 +1,6 @@
 import pytest
 
-from strainer import (field, dict_field, serializer, child, many, validators, ValidationException)
+from strainer import (field, dict_field, multiple_field, serializer, child, many, validators, ValidationException)
 
 
 class ChildTestObject(object):
@@ -55,7 +55,7 @@ def test_field_custom_attr_gettr():
 
 
 def test_field_multiple():
-    serializer = field('d', multiple=True)
+    serializer = multiple_field('d')
     test_obj = TestObject()
     target = {}
     serializer.serialize(test_obj, target)
@@ -70,7 +70,7 @@ def test_field_multiple():
 
 
 def test_field_multiple_validation():
-    serializer = field('e', multiple=True, validators=[validators.string(max_length=1)])
+    serializer = multiple_field('e', validators=[validators.string(max_length=1)])
     test_obj = {
       'e': ['a', 'bb']
     }

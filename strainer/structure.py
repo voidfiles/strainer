@@ -36,7 +36,7 @@ def run_validators(value, validators, context):
 
 
 def field(source_field, target_field=None, validators=None,
-          multiple=False, attr_getter=None, formatters=None):
+          attr_getter=None, formatters=None):
     """Constructs an indvidual field for a serializer, this is on the
     order of one key, and one value.
 
@@ -55,7 +55,6 @@ def field(source_field, target_field=None, validators=None,
                              If optional target is equal to source_field
     :param list validators: A list of validators that will be applied during deserialization.
     :param list formaters: A list of formaters that will be applied during serialization.
-    :param boolean multiple: If true will treat input as a list, and apply validation to each element in the list
     :param function attr_getter: Overrides the default method for getting the soure_field off of an object
     """
     target_field = target_field if target_field else source_field
@@ -86,25 +85,81 @@ def field(source_field, target_field=None, validators=None,
     def deserialize(source, target, context=None):
         value = source.get(target_field)
 
-        if multiple:
-            errors = {}
-            new_value = []
+        value = _validate(value, target_field, context=context)
 
-            for i, v in enumerate(value):
-                try:
-                    new_value += [_validate(v, i, context=context)]
-                except ValidationException as e:
-                    errors.update(e.errors)
+        target[source_field] = value
 
-            value = new_value
+        return target
 
-            if errors:
-                raise ValidationException({
-                    target_field: errors
-                })
+    return Translator(serialize, deserialize)
 
-        else:
-            value = _validate(value, target_field, context=context)
+
+def multiple_field(source_field, target_field=None, validators=None,
+                   attr_getter=None, formatters=None):
+    """Constructs an indvidual field for a serializer, this is on the
+    order of one key, and one value.
+
+    The field determines the mapping between keys internaly, and externally.
+    As well as the proper validation at the level of the field.
+
+    >>> from collections import namedtuple
+    >>> Aonly = namedtuple('Aonly', 'a')
+    >>> model = Aonly('b')
+    >>> one_field = field('a')
+    >>> one_field.deserialize(model)
+    {'a': 'b'}
+
+    :param str source_field: What attribute to get from a source object
+    :param str target_field: What attribute to place the value on the target, optional.
+                             If optional target is equal to source_field
+    :param list validators: A list of validators that will be applied during deserialization.
+    :param list formaters: A list of formaters that will be applied during serialization.
+    :param function attr_getter: Overrides the default method for getting the soure_field off of an object
+    """
+    target_field = target_field if target_field else source_field
+    validators = validators if validators else []
+    attr_getter = attr_getter or operator.attrgetter(source_field)
+
+    def _validate(value, field, context=None):
+        value, errors = run_validators(value, validators, context)
+
+        if errors:
+            raise ValidationException({
+                field: errors
+            })
+
+        return value
+
+    def serialize(source, target, context=None):
+        value = attr_getter(source)
+
+        if formatters:
+            for formater in formatters:
+                value = formater(value, context)
+
+        target[target_field] = value
+
+        return target
+
+    def deserialize(source, target, context=None):
+        value = source.get(target_field)
+
+        errors = {}
+        new_value = []
+
+        for i, v in enumerate(value):
+            try:
+                new_value += [_validate(v, i, context=context)]
+            except ValidationException as e:
+                errors.update(e.errors)
+
+        value = new_value
+
+        if errors:
+            raise ValidationException({
+                target_field: errors
+            })
+
 
         target[source_field] = value
 

@@ -60,9 +60,9 @@ It is possible to declare a field as a list instead of single value. If you do s
 
 .. code-block:: python
 
-  from strainer import field, validators
+  from strainer import multiple_field, validators
 
-  a_field = field('a', multiple=True)
+  a_field = multiple_field('a')
 
 Custom Attribute Getter
 ^^^^^^^^^^^^^^^^^^^^^^^
