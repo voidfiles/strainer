@@ -10,7 +10,7 @@ Background
 
 Strainer was built to serialize rich Python objects into simple data structures. You might use Strainer with an object relation mapper like Django's ORM, or SQLAlchemy. So, first we are going to define some models that we will use for the rest of the introduction.
 
-We are going to cover some aspects of creating an API that will track RSS feeds, and their items. Here are two simple models that could represent RSS Feeds and their items.
+We are going to cover some aspects of creating an API that will track RSS feeds and their items. Here are two simple models that could represent RSS feeds and their items.
 
 .. code-block:: python
 
@@ -41,7 +41,7 @@ To start, we will create serializers for each model. The job of a serializer is 
     field('name', validators=[validators.required()]),
   )
 
-This serializer will map the feed, and name attribites into a simple python dict. Now, we can nest the item serializer into the feed serializer, here's how.
+This serializer will map the feed, and name attributes into a simple python dict. Now, we can nest the item serializer into the feed serializer, here's how.
 
 .. code-block:: python
 
@@ -84,7 +84,7 @@ Validation
 
 This is a great start to building a JSON API, but now we want to reverse the process and accept JSON. When we accept input from the outside, we first need to validate that it well-formed before we begin to work with it.
 
-Since, we have already described our data, including what makes it valid, we can use our exisisting serializer, just in reverse. So, let's say we are going to create feed item, we can do the following
+Since, we have already described our data, including what makes it valid, we can use our existing serializer, just in reverse. So, let's say we are going to create feed item, we can do the following
 
 .. code-block:: python
 
