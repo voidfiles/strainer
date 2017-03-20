@@ -44,7 +44,10 @@ def test_required():
     with pytest.raises(ValidationException):
         validator('')
 
-    assert validator(0) == 0
+    assert validator(False) is False
+
+    for zero in [0, 0.0, 0j]:
+        assert validator(zero) == zero
 
 
 def test_boolean():
