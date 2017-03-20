@@ -7,8 +7,8 @@ Validators are functions that validate data.
 """
 import iso8601
 
-from functools import partial, wraps
 from .exceptions import ValidationException
+from functools import partial, wraps
 from six import text_type
 
 
@@ -59,13 +59,13 @@ def string(value, max_length=None, context=None):
 @export_validator
 def required(value, context=None):
     """validates that a field exists in the input"""
-    if value is 0:
+    if value:
         return value
 
-    if not value:
-        raise ValidationException('This field is required')
+    if value == 0:
+        return value
 
-    return value
+    raise ValidationException('This field is required')
 
 
 @export_validator
