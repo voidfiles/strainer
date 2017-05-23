@@ -13,6 +13,7 @@ excepton.
 """
 import operator
 from .exceptions import ValidationException
+from strainer.context import check_context
 
 
 class Translator(object):
@@ -33,6 +34,16 @@ def run_validators(value, validators, context):
             errors += [e.errors]
 
     return value, errors
+
+
+def emptyish(val):
+    if val in [0, "", [], False]:
+        return False
+
+    if not val:
+        return True
+
+    return False
 
 
 def field(source_field, target_field=None, validators=None,
@@ -77,6 +88,10 @@ def field(source_field, target_field=None, validators=None,
         if formatters:
             for formater in formatters:
                 value = formater(value, context)
+
+        drop_empty = check_context(context, "drop_empty", False)
+        if drop_empty and emptyish(value):
+            return target
 
         target[target_field] = value
 
@@ -137,6 +152,10 @@ def multiple_field(source_field, target_field=None, validators=None,
             for formater in formatters:
                 value = formater(value, context)
 
+        drop_empty = check_context(context, "drop_empty", False)
+        if drop_empty and emptyish(value):
+            return target
+
         target[target_field] = value
 
         return target
@@ -155,11 +174,14 @@ def multiple_field(source_field, target_field=None, validators=None,
 
         value = new_value
 
+        drop_empty = check_context(context, "drop_empty", False)
+        if drop_empty and emptyish(value):
+            return target
+
         if errors:
             raise ValidationException({
                 target_field: errors
             })
-
 
         target[source_field] = value
 
@@ -188,7 +210,14 @@ def child(source_field, target_field=None, serializer=None, validators=None, att
 
     def serialize(source, target, context=None):
         sub_source = _attr_getter(source)
-        target[target_field] = serializer.serialize(sub_source, context=context)
+
+        value = serializer.serialize(sub_source, context=context)
+
+        drop_empty = check_context(context, "drop_empty", False)
+        if drop_empty and emptyish(value):
+            return target
+
+        target[target_field] = value
 
         return target
 
@@ -226,6 +255,10 @@ def many(source_field, target_field=None, serializer=None, validators=None, attr
         sub_source = _attr_getter(source)
 
         collector = [serializer.serialize(i, context=context) for i in sub_source]
+
+        drop_empty = check_context(context, "drop_empty", False)
+        if drop_empty and emptyish(collector):
+            return target
 
         target[target_field] = collector
 

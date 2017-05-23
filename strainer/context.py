@@ -17,9 +17,6 @@ class SerializationContext(object):
         for key, val in kwargs.items():
             setattr(self, key, val)
 
-    def __getattr__(self, key):
-        return None
-
 
 def check_context(context, key, default=None):
     if not context:

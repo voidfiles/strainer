@@ -1,6 +1,14 @@
 import pytest
 
-from strainer import (field, dict_field, multiple_field, serializer, child, many, validators, ValidationException)
+from strainer import (field, dict_field, multiple_field,
+                      serializer, child, many, validators,
+                      ValidationException)
+
+from strainer.structure import emptyish
+from strainer.context import SerializationContext
+
+
+serialization_context = SerializationContext(drop_empty=True)
 
 
 class ChildTestObject(object):
@@ -8,11 +16,19 @@ class ChildTestObject(object):
     c1 = 'a'
 
 
+class EmptryChildTestObject(object):
+    b1 = None
+    c1 = None
+
+
 class TestObject(object):
     a = 1
     b = ChildTestObject()
     c = [ChildTestObject(), ChildTestObject()]
     d = [1, 2]
+    e = []
+    empty = None
+    b2 = EmptryChildTestObject()
 
 
 def test_field():
@@ -29,6 +45,20 @@ def test_field():
 
     assert {'a': 1} == target
 
+    serializer = field('empty')
+    test_obj = TestObject()
+    target = {}
+    serializer.serialize(test_obj, target)
+
+    assert {"empty": None} == target
+
+    serializer = field('empty')
+    test_obj = TestObject()
+    target = {}
+    serializer.serialize(test_obj, target, serialization_context)
+
+    assert {} == target
+
 
 def test_dict_field():
     serializer = dict_field('a')
@@ -43,6 +73,20 @@ def test_dict_field():
     serializer.deserialize(from_json, target)
 
     assert {'a': 'b'} == target
+
+    serializer = dict_field('empty')
+    test_obj = {"empty": None}
+    target = {}
+    serializer.serialize(test_obj, target)
+
+    assert {"empty": None} == target
+
+    serializer = dict_field('empty')
+    test_obj = {"empty": None}
+    target = {}
+    serializer.serialize(test_obj, target, serialization_context)
+
+    assert {} == target
 
 
 def test_field_custom_attr_gettr():
@@ -67,6 +111,20 @@ def test_field_multiple():
     serializer.deserialize(from_json, target)
 
     assert {'d': [1, 2]} == target
+
+    serializer = multiple_field('e')
+    test_obj = TestObject()
+    target = {}
+    serializer.serialize(test_obj, target)
+
+    assert {'e': []} == target
+
+    serializer = multiple_field('e')
+    test_obj = TestObject()
+    target = {}
+    serializer.serialize(test_obj, target, serialization_context)
+
+    assert {'e': []} == target
 
 
 def test_field_multiple_validation():
@@ -137,6 +195,28 @@ def test_child():
     target = a_serializer.deserialize(from_json)
 
     assert from_json == target
+
+
+def test_empty_child():
+    child_serializer = serializer(
+        field('b1'),
+        field('c1'),
+    )
+
+    a_serializer = serializer(
+        field('a'),
+        child('b2', serializer=child_serializer)
+    )
+
+    test_obj = TestObject()
+
+    target = a_serializer.serialize(test_obj)
+
+    assert target == {'a': 1, 'b2': {'b1': None, 'c1': None}}
+
+    target = a_serializer.serialize(test_obj, context=serialization_context)
+
+    assert target == {'a': 1}
 
 
 def test_many():
@@ -214,3 +294,12 @@ def test_nested_required():
         errors = e.errors
 
     assert errors == {'c': [{'c1': ['This field is required']}]}
+
+
+def test_emptyish():
+    assert emptyish([]) is False
+    assert emptyish(0) is False
+    assert emptyish("") is False
+    assert emptyish(False) is False
+    assert emptyish({}) is True
+    assert emptyish(None) is True
