@@ -1,0 +1,21 @@
+"""
+Serialization Context
+=====================
+
+When we run a serialization, or a deserialization there are small
+things we want to tweak for the whole operation.
+
+This context object is a way to pass information into the whole
+process.
+
+
+"""
+
+
+class SerializationContext(object):
+    def __init__(self, *args, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+
+    def __getattr__(self, key):
+        return None

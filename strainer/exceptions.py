@@ -1,6 +1,6 @@
 """
 Exceptions
-========
+==========
 
 This is just a set of utilities to help take a deserialized dict and turn it into JSON. It handles things like datetime objects.
 """
