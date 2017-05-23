@@ -19,3 +19,10 @@ class SerializationContext(object):
 
     def __getattr__(self, key):
         return None
+
+
+def check_context(context, key, default=None):
+    if not context:
+        return default
+
+    return getattr(context, key, default)
