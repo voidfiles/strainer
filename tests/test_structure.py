@@ -4,7 +4,7 @@ from strainer import (field, dict_field, multiple_field,
                       serializer, child, many, validators,
                       ValidationException)
 
-from strainer.structure import emptyish
+from strainer.structure import emptyish, run_validators
 from strainer.context import SerializationContext
 
 
@@ -16,7 +16,7 @@ class ChildTestObject(object):
     c1 = 'a'
 
 
-class EmptryChildTestObject(object):
+class EmptyChildTestObject(object):
     b1 = None
     c1 = None
 
@@ -28,7 +28,7 @@ class TestObject(object):
     d = [1, 2]
     e = []
     empty = None
-    b2 = EmptryChildTestObject()
+    b2 = EmptyChildTestObject()
 
 
 def test_field():
@@ -303,3 +303,33 @@ def test_emptyish():
     assert emptyish(False) is False
     assert emptyish({}) is True
     assert emptyish(None) is True
+
+
+def raise_validator(target, context=None):
+    raise ValidationException("Invalid")
+
+
+def test_full_validation():
+    target = {}
+    assert run_validators(target, [lambda x, context: x], None) == (target, [])
+
+    target = {}
+    _, errors = run_validators(target, [raise_validator], None)
+    assert errors
+    assert errors == ["Invalid"]
+
+
+def test_multiple_field_full_validation():
+    serializer = multiple_field('e', validators=[validators.string(max_length=1)],
+                                full_validators=[raise_validator])
+    test_obj = {
+      'e': ['a', 'bb']
+    }
+    target = {}
+    errors = None
+    try:
+        serializer.deserialize(test_obj, target)
+    except ValidationException as e:
+        errors = e.errors
+
+    assert errors == {'e': {1: ['This field is to long, max length is 1'], '_full_errors': ['Invalid']}}
