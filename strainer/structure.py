@@ -278,16 +278,24 @@ def many(source_field, target_field=None, serializer=None,
 
         target[source_field] = collector
 
+        full_errors = None
+        if full_validators:
+            target, full_errors = run_validators(target, full_validators, context)
+
+        error_dict = {}
+
         if errors:
-            raise ValidationException({
+            error_dict.update({
                 target_field: errors
             })
 
-        if full_validators:
-            target, full_errors = run_validators(target, full_validators, context)
-            raise ValidationException({
-                target_field: errors
+        if full_errors:
+            error_dict.update({
+                '_full_errors': full_errors,
             })
+
+        if error_dict:
+            raise ValidationException(error_dict)
 
         return target
 

@@ -333,3 +333,24 @@ def test_multiple_field_full_validation():
         errors = e.errors
 
     assert errors == {'e': {1: ['This field is to long, max length is 1'], '_full_errors': ['Invalid']}}
+
+
+def test_many_full_validation():
+    size_serializer = serializer(
+        dict_field('size')
+    )
+    test_serializer = many('e', serializer=size_serializer,
+                           full_validators=[raise_validator])
+    test_obj = {
+      'e': [{"size": 'a'}, {"size": 'bb'}]
+    }
+
+    target = {}
+    errors = None
+
+    try:
+        test_serializer.deserialize(test_obj, target)
+    except ValidationException as e:
+        errors = e.errors
+
+    assert errors == {'_full_errors': ['Invalid']}
