@@ -179,6 +179,7 @@ The Many structure is like the Child structure. It allows you to nest objects. T
     many('c', validators=[validators.required()], serializer=c_serializer),
   )
 
+One thing to keep in mind is that the passed validators to many will be passed all the data in the target key. That way you can perform validation over the whole structure. For instance you could limit the length of a list. The full validation will happen before the data is passed to the serialier.
 
 The Serializer
 --------------

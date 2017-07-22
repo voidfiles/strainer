@@ -237,7 +237,7 @@ def child(source_field, target_field=None, serializer=None,
 
 
 def many(source_field, target_field=None, serializer=None,
-         validators=None, attr_getter=None, full_validators=None):
+         validators=None, attr_getter=None):
     """Many allows you to nest a list of serializers"""
 
     target_field = target_field if target_field else source_field
@@ -267,35 +267,24 @@ def many(source_field, target_field=None, serializer=None,
 
             if errors:
                 raise ValidationException({
-                    target_field: errors
+                    target_field: {
+                        '_full_errors': errors
+                    }
                 })
 
-        for i in sub_source:
+        error_dict = {}
+        for i, item in enumerate(sub_source):
             try:
-                collector.append(serializer.deserialize(i, context=context))
+                collector.append(serializer.deserialize(item, context=context))
             except ValidationException as e:
-                errors += [e.errors]
+                error_dict[i] = e.errors
 
         target[source_field] = collector
 
-        full_errors = None
-        if full_validators:
-            target, full_errors = run_validators(target, full_validators, context)
-
-        error_dict = {}
-
-        if errors:
-            error_dict.update({
-                target_field: errors
-            })
-
-        if full_errors:
-            error_dict.update({
-                '_full_errors': full_errors,
-            })
-
         if error_dict:
-            raise ValidationException(error_dict)
+            raise ValidationException({
+                target_field: error_dict
+            })
 
         return target
 

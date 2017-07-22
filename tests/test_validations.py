@@ -143,11 +143,14 @@ def test_serializer_with_many_validation():
         assert hasattr(e, 'errors')
         assert e.errors == {
             'a': ['Failed', 'Failed, again'],
-            'e': [{
-                'd2': ['Failed']
-            }, {
-                'd2': ['Failed']
-            }]
+            'e': {
+                0: {
+                    'd2': ['Failed']
+                },
+                1: {
+                    'd2': ['Failed']
+                }
+            }
         }
 
 

@@ -280,7 +280,7 @@ def test_nested_required():
     except ValidationException as e:
         errors = e.errors
 
-    assert errors == {'c': ['This field is required']}
+    assert errors == {'c': {'_full_errors': ['This field is required']}}
 
     reference = {
       'a': 1,
@@ -293,7 +293,7 @@ def test_nested_required():
     except ValidationException as e:
         errors = e.errors
 
-    assert errors == {'c': [{'c1': ['This field is required']}]}
+    assert errors == {'c': {0: {'c1': ['This field is required']}}}
 
 
 def test_emptyish():
@@ -340,7 +340,7 @@ def test_many_full_validation():
         dict_field('size')
     )
     test_serializer = many('e', serializer=size_serializer,
-                           full_validators=[raise_validator])
+                           validators=[raise_validator])
     test_obj = {
       'e': [{"size": 'a'}, {"size": 'bb'}]
     }
@@ -353,4 +353,4 @@ def test_many_full_validation():
     except ValidationException as e:
         errors = e.errors
 
-    assert errors == {'_full_errors': ['Invalid']}
+    assert errors == {'e': {'_full_errors': ['Invalid']}}
