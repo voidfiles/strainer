@@ -144,6 +144,9 @@ def multiple_field(source_field, target_field=None, validators=None,
     def deserialize(source, target, context=None):
         value = source.get(target_field)
 
+        if not value:
+            value = []
+
         errors = {}
         new_value = []
 

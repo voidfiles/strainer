@@ -72,7 +72,7 @@ setup(
     install_requires=requires,
     license='Apache 2.0',
     zip_safe=False,
-    classifiers=(
+    classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: Apache Software License',
@@ -90,7 +90,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Development Status :: 5 - Production/Stable',
         'Topic :: Software Development',
-    ),
+    ],
     cmdclass={'test': PyTest},
     tests_require=test_requirements,
 )

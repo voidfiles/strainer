@@ -1,5 +1,5 @@
 __title__ = 'strainer'
-__version__ = '1.3.0'
+__version__ = '1.3.1'
 __author__ = 'Alex Kessinger'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2016 Alex Kessiger'

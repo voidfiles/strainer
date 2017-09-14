@@ -27,6 +27,7 @@ class TestObject(object):
     c = [ChildTestObject(), ChildTestObject()]
     d = [1, 2]
     e = []
+    e2 = None
     empty = None
     b2 = EmptyChildTestObject()
 
@@ -354,3 +355,14 @@ def test_many_full_validation():
         errors = e.errors
 
     assert errors == {'e': {'_full_errors': ['Invalid']}}
+
+
+def test_multiple_field_empty():
+    serializer = multiple_field('e2')
+    test_obj = {
+      'e2': None
+    }
+    target = {}
+    target = serializer.deserialize(test_obj, target)
+
+    assert target['e2'] == []
