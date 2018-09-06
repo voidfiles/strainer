@@ -72,7 +72,7 @@ The default timezone is UTC, but you can modify that by passing a `default_tzinf
 Custom Validators
 -----------------
 
-A validtora returns a function that will be used to validate a value during serialization. You can use the `export_validator` function to create a custom validation function.
+A validator returns a function that will be used to validate a value during serialization. You can use the `export_validator` function to create a custom validation function.
 
 .. code-block:: python
 
