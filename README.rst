@@ -2,7 +2,7 @@ Strainer: Fast Functional Serializers
 =====================================
 
 .. image:: https://img.shields.io/pypi/v/pystrainer.svg
-    :target: https://pypi.python.org/pypi/pystrainer
+    :target: https://pypi.org/project/pystrainer/
 
 .. image:: https://readthedocs.org/projects/strainer/badge/?version=latest
     :target: https://strainer.readthedocs.io/en/latest/
@@ -12,7 +12,7 @@ Strainer: Fast Functional Serializers
 
 Strainer is a different take on serialization and validation in python. It utilizes a functional style over classes.
 
-Strainer officially supports Python 2.6–2.7 & 3.4–3.5, and runs great on PyPy.
+Strainer officially supports Python 2.7 & 3.5–3.8, and runs great on PyPy.
 
 Features
 --------
